@@ -186,56 +186,12 @@ void agc_init(int32_t operatingPointInDbFs)
 
 /**************************************************************************
 
-  Name: ~AutomaticGainControl
-
-  Purpose: The purpose of this function is to serve as the destructor
-  of an AutomaticGainControl object.
-
-  Calling Sequence: ~AutomaticGainControl()
-
-  Inputs:
-
-    None.
-
-  Outputs:
-
-    None.
-
-**************************************************************************/
-agc_~AutomaticGainControl(void)
-{
-  IqDataProcessor *DataProcessorPtr;
-
-  // Reference the pointer in the proper context.
-  DataProcessorPtr = (IqDataProcessor *)dataProcessorPtr;
-
-  // Disable the AGC.
-  enabled = 0;
-
-  // Turn off notification.
-  DataProcessorPtr->disableSignalMagnitudeNotification();
-
-  // Unregister the callback.
-  DataProcessorPtr->registerSignalMagnitudeCallback(NULL,NULL);
-
-  // Release resources.
-  if (calculatorPtr != NULL)
-  {
-    delete calculatorPtr;
-  } // if
-
-  return;
-
-} // ~AutomaticGainControl
-
-/**************************************************************************
-
-  Name: setDeadband
+  Name: agc_setDeadband
 
   Purpose: The purpose of this function is to set the deadband of the
   AGC.  This presents gain setting oscillations
 
-  Calling Sequence: success = setDeadband(deadbandInDb)
+  Calling Sequence: success = agc_setDeadband(deadbandInDb)
 
   Inputs:
 
@@ -270,11 +226,11 @@ int agc_setDeadband(uint32_t deadbandInDb)
 
   return (success);
 
-} // setDeadband
+} // agc_setDeadband
 
 /**************************************************************************
 
-  Name: setBlankingLimit
+  Name: agc_setBlankingLimit
 
   Purpose: The purpose of this function is to set the blanking limit of
   the AGC.  This presents gain setting oscillations.  What happens if
@@ -282,7 +238,7 @@ int agc_setDeadband(uint32_t deadbandInDb)
   blind to the actual signal that is being received since the transient
   can swamp the system.
 
-  Calling Sequence: success = setBlankingLimit(blankingLimit)
+  Calling Sequence: success = agc_setBlankingLimit(blankingLimit)
 
   Inputs:
 
@@ -318,7 +274,7 @@ int agc_setBlankingLimit(uint32_t blankingLimit)
 
   return (success);
 
-} // setBlankingLimit
+} // agc_setBlankingLimit
 
 /**************************************************************************
 
@@ -327,7 +283,7 @@ int agc_setBlankingLimit(uint32_t blankingLimit)
   Purpose: The purpose of this function is to set the operating point
   of the AGC.
 
-  Calling Sequence: setOperatingPoint(operatingPointInDbFs)
+  Calling Sequence: agc_setOperatingPoint(operatingPointInDbFs)
 
   Inputs:
 
@@ -347,17 +303,17 @@ void agc_setOperatingPoint(int32_t operatingPointInDbFs)
 
   return;
 
-} // setOperatingPoint
+} // agc_setOperatingPoint
 
 /**************************************************************************
 
-  Name: setAgcFilterCoefficient
+  Name: agc_setAgcFilterCoefficient
 
   Purpose: The purpose of this function is to set the coefficient of
   the first order lowpass filter that filters the baseband gain value.
   In effect, the time constant of the filter is set.
 
-  Calling Sequence: success = setAgcFilterCoefficient(coefficient)
+  Calling Sequence: success = agc_setAgcFilterCoefficient(coefficient)
 
   Inputs:
 
@@ -390,15 +346,15 @@ int agc_setAgcFilterCoefficient(float coefficient)
 
   return (success);
 
-} // setAgcFilterCoefficient
+} // agc_agc_setAgcFilterCoefficient
 
 /**************************************************************************
 
-  Name: enable
+  Name: agc_enable
 
   Purpose: The purpose of this function is to enable the AGC.
 
-  Calling Sequence: success = enable();
+  Calling Sequence: success = agc_enable();
 
   Inputs:
 
@@ -450,15 +406,15 @@ int agc_enable(void)
 
   return (success);
 
-} // enable
+} // agc_enable
 
 /**************************************************************************
 
-  Name: disable
+  Name: agc_disable
 
   Purpose: The purpose of this function is to disable the AGC.
 
-  Calling Sequence: success = disable();
+  Calling Sequence: success = agc_disable();
 
   Inputs:
 
@@ -497,16 +453,16 @@ int agc_disable(void)
 
   return (success);
 
-} // disable
+} // agc_disable
 
 /**************************************************************************
 
-  Name: isEnabled
+  Name: iagc_sEnabled
 
   Purpose: The purpose of this function is to determine whether or not
   the AGC is enabled.
 
-  Calling Sequence: status = isEnabled()
+  Calling Sequence: status = agc_isEnabled()
 
   Inputs:
 
@@ -524,16 +480,16 @@ int agc_isEnabled(void)
 
   return (enabled);
 
-} // isEnabled
+} // agc_isEnabled
 
 /**************************************************************************
 
-  Name: resetBlankingSystem
+  Name: agc_resetBlankingSystem
 
   Purpose: The purpose of this function is to reset the blanking system
   to its starting state.
 
-  Calling Sequence: resetBlankingSystem()
+  Calling Sequence: agc_resetBlankingSystem()
 
   Inputs:
 
@@ -555,16 +511,16 @@ void agc_resetBlankingSystem(void)
 
   return;
 
-} // resetBlankingSystem
+} // agc_resetBlankingSystem
 
 /**************************************************************************
 
-  Name: run
+  Name: agc_run
 
   Purpose: The purpose of this function is to run the selected automatic
   gain control algorithm.
  
-  Calling Sequence: run(signalMagnitude )
+  Calling Sequence: agc_run(signalMagnitude )
 
   Inputs:
 
@@ -643,11 +599,11 @@ void agc_run(uint32_t signalMagnitude)
 
   return;
 
-} // run
+} // agc_run
 
 /**************************************************************************
 
-  Name: runHarris
+  Name: agc_runHarris
 
   Purpose: The purpose of this function is to run the automatic gain
   control.  This is the implementation of the algorithm described by
@@ -816,16 +772,16 @@ void agc_runHarris(uint32_t signalMagnitude)
 
   return;
 
-} // runHarris
+} // agc_runHarris
 
 /**************************************************************************
 
-  Name: displayInternalInformation
+  Name: agc_displayInternalInformation
 
   Purpose: The purpose of this function is to display information in the
   AGC.
 
-  Calling Sequence: displayInternalInformation()
+  Calling Sequence: agc_displayInternalInformation()
 
   Inputs:
 
@@ -876,6 +832,6 @@ void agc_displayInternalInformation(void)
 
   return;
 
-} // displayInternalInformation
+} // agc_displayInternalInformation
 
 #endif
