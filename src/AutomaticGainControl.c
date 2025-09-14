@@ -59,7 +59,8 @@ static struct privateData
 
 static void agc_resetBlankingSystem(void);
 static int agc_setGain(uint32_t gainInDb);
-static iint32_t agc_getGainInDb(void);
+static void agc_run(int32_t signalIndBFs);
+static uint32_t agc_getGainInDb(void);
 static int32_t agc_getGainChangedBySomeoneElse(void);
 
 /**************************************************************************
@@ -431,7 +432,7 @@ int agc_disable(void)
 
 /**************************************************************************
 
-  Name: iagc_isEnabled
+  Name: agc_isEnabled
 
   Purpose: The purpose of this function is to determine whether or not
   the AGC is enabled.
@@ -487,8 +488,6 @@ void agc_resetBlankingSystem(void)
 
 } // agc_resetBlankingSystem
 
-#if 0
-
 /**************************************************************************
 
   Name: agc_run
@@ -496,11 +495,11 @@ void agc_resetBlankingSystem(void)
   Purpose: The purpose of this function is to run the selected automatic
   gain control algorithm.
  
-  Calling Sequence: agc_run(signalMagnitude )
+  Calling Sequence: agc_run(agc_run(int32_t signalIndBFs)
 
   Inputs:
 
-    signalMagnitude - The average magnitude of the IQ data block that
+    signalIndBFs) - The average magnitude of the IQ data block that
     was received in units of dBFs.
 
   Outputs:
@@ -572,6 +571,8 @@ void agc_run(int32_t signalIndBFs)
   return;
 
 } // agc_run
+
+#if 0
 
 /**************************************************************************
 
