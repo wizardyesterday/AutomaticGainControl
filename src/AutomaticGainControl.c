@@ -21,7 +21,7 @@
 #define MAX_ADJUSTIBLE_GAIN (46)
 //_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
 
-
+// All private stuff is bundled in one structure.
 static struct privateData
 {
   // Don't run unless the system has been initialized.
@@ -48,10 +48,10 @@ static struct privateData
   float alpha;
 
   // System gains.
-  uint32_t ifGainInDb;
+  uint32_t gainInDb;
  
   // Filtered gain.
-  float filteredIfGainInDb;
+  float filterGainInDb;
 
   // Magnitude of the latest signal.
   uint32_t signalMagnitude;
@@ -59,50 +59,47 @@ static struct privateData
   // Signal level before amplification.
   int32_t normalizedSignalLevelInDbFs;
 
-} this;
+} me;
 
-static void resetBlankingSystem(void);
-
-#if 0
+static void agc_resetBlankingSystem(void);
+static int agc_setGain(uint32_t gainInDb);
+static uint32_t getGainInDb(void);
 
 /**************************************************************************
 
-  Name: signalMagnitudeCallback
+  Name: agc_acceptData
 
-  Purpose: The purpose of this function is to serve as the callback that
-  accepts signal state information.
+  Purpose: The purpose of this function is the interface to run the AGC.
 
-  Calling Sequence: signalMagnitudeCallback(signalMagnitude,contextPtr)
+  Calling Sequence: agc_acceptData(int32_t signalIndBFs)
 
   Inputs:
 
-    signalMagnitude - The average magnitude of the IQ data block that
-    was received.
-
-    contextPtr - A pointer to private context data.
+    signalIndBFs - The signal in decibels referenced to full scale.
 
   Outputs:
 
     None.
 
 **************************************************************************/
-static void signalMagnitudeCallback(uint32_t signalMagnitude,
-                                   void *contextPtr)
+void agc_acceptData(int32_t signalIndBFs)
 {
-  AutomaticGainControl *thisPtr;
 
-  // Reference the context pointer properly.
-  thisPtr = (AutomaticGainControl *)contextPtr;
-
-  if (thisPtr->isEnabled())
+  // Allow the AGC to poerate if it is configured.
+  if (me.initialized)
   {
-    // Process the signal.
-    thisPtr->run(signalMagnitude);
+    if (me.enabled)
+    {
+      // Process the signal.
+      agc_run(signalIndBFs);
+    } // if
   } // if
 
   return;
 
-} // signalMagnitudeCallback
+} // agc_acceptData
+
+#if 0
 
 /************************************************************************
 
