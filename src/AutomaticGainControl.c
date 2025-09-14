@@ -38,7 +38,7 @@ static struct privateData
   // Yes, we need some deadband.
   int32_t deadbandInDb;
 
-  // If true, the AGC is running.
+  // If 1, the AGC is running.
   int enabled;
 
   // The goal.
@@ -148,7 +148,7 @@ agc_AutomaticGainControl(void *radioPtr,
   signalMagnitude = 64;
 
   // Default to disabled.
-  enabled = false;
+  enabled = 0;
 
   //_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
   // Sometimes, adjustments need to be avoided when a transient in the
@@ -158,7 +158,7 @@ agc_AutomaticGainControl(void *radioPtr,
   // demodulated data was occurring as a result of the IIC repeater
   // being enabled (and/or disabled) in the Realtek 2832U chip.  The
   // simplest thing to do in software is to perform a transient
-  // avoidance strategy.  While it is true that the performance of the
+  // avoidance strategy.  While it is 1 that the performance of the
   // AGC becomes less than optimal, it is still better than experiencing
   // limit cycles.  The blankingLimit is configurable so that the
   // user can change the value to suit the needs of the application.
@@ -167,7 +167,7 @@ agc_AutomaticGainControl(void *radioPtr,
   blankingLimit = 1;
 
   // Allow the AGC to run the first time.
-  receiveGainWasAdjusted = false;
+  receiveGainWasAdjusted = 0;
   //_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
 
   //_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
@@ -245,7 +245,7 @@ agc_~AutomaticGainControl(void)
   DataProcessorPtr = (IqDataProcessor *)dataProcessorPtr;
 
   // Disable the AGC.
-  enabled = false;
+  enabled = 0;
 
   // Turn off notification.
   DataProcessorPtr->disableSignalMagnitudeNotification();
@@ -281,8 +281,8 @@ agc_~AutomaticGainControl(void)
   Outputs:
 
     success - A flag that indicates whether the the AGC type was set.
-    A value of true indicates that the AGC type was successfully set,
-    and a value of false indicates that the AGC type was not set due
+    A value of 1 indicates that the AGC type was successfully set,
+    and a value of 0 indicates that the AGC type was not set due
     to an invalid value for the AGC type was specified.
 
 **************************************************************************/
@@ -291,7 +291,7 @@ int agc_setType(uint32_t type)
   int success;
 
   // Default to success.
-  success = true;
+  success = 1;
 
   switch (type)
   {
@@ -312,7 +312,7 @@ int agc_setType(uint32_t type)
     default:
     {
       // Indicate failure.
-      success = false;
+      success = 0;
       break;
     } // case
   } // switch
@@ -340,8 +340,8 @@ int agc_setType(uint32_t type)
   Outputs:
 
     success - A flag that indicates whether or not the deadband parameter
-    was updated.  A value of true indicates that the deadband was
-    updated, and a value of false indicates that the parameter was not
+    was updated.  A value of 1 indicates that the deadband was
+    updated, and a value of 0 indicates that the parameter was not
     updated due to an invalid specified deadband value.
 
 **************************************************************************/
@@ -350,7 +350,7 @@ int agc_setDeadband(uint32_t deadbandInDb)
   int success;
 
   // Default to failure.
-  success = false;
+  success = 0;
 
   if ((deadbandInDb >= 0) && (deadbandInDb <= 10))
   {
@@ -358,7 +358,7 @@ int agc_setDeadband(uint32_t deadbandInDb)
     this->deadbandInDb = deadbandInDb;
 
     // Indicate success.
-    success = true;
+    success = 1;
   } // if
 
   return (success);
@@ -385,8 +385,8 @@ int agc_setDeadband(uint32_t deadbandInDb)
   Outputs:
 
     success - A flag that indicates whether or not the blanking limit
-    parameter was updated.  A value of true indicates that the blanking
-    limit was updated, and a value of false indicates that the parameter
+    parameter was updated.  A value of 1 indicates that the blanking
+    limit was updated, and a value of 0 indicates that the parameter
     was not updated due to an invalid specified blanking limit value.
 
 **************************************************************************/
@@ -395,7 +395,7 @@ int agc_setBlankingLimit(uint32_t blankingLimit)
   int success;
 
   // Default to failure.
-  success = false;
+  success = 0;
 
   if ((blankingLimit >= 0) && (blankingLimit <= 10))
   {
@@ -406,7 +406,7 @@ int agc_setBlankingLimit(uint32_t blankingLimit)
     resetBlankingSystem();
 
     // Indicate success.
-    success = true;
+    success = 1;
   } // if
 
   return (success);
@@ -460,8 +460,8 @@ void agc_setOperatingPoint(int32_t operatingPointInDbFs)
   Outputs:
 
     success - A flag that indicates whether the filter coefficient was
-    updated.  A value of true indicates that the coefficient was
-    updated, and a value of false indicates that the coefficient was
+    updated.  A value of 1 indicates that the coefficient was
+    updated, and a value of 0 indicates that the coefficient was
     not updated due to an invalid coefficient value.
 
 **************************************************************************/
@@ -470,7 +470,7 @@ int agc_setAgcFilterCoefficient(float coefficient)
   int success;
 
   // Default to failure.
-  success = false;
+  success = 0;
 
   if ((coefficient >= 0.001) && (coefficient < 0.999))
   {
@@ -478,7 +478,7 @@ int agc_setAgcFilterCoefficient(float coefficient)
     alpha = coefficient;
 
     // Indicate success.
-    success = true;
+    success = 1;
   } // if
 
   return (success);
@@ -500,8 +500,8 @@ int agc_setAgcFilterCoefficient(float coefficient)
   Outputs:
 
     success - A flag that indicates whether or not the operation was
-    successful.  A value of true indicates that the operation was
-    successful, and a value of false indicates that, eitherthe AGC
+    successful.  A value of 1 indicates that the operation was
+    successful, and a value of 0 indicates that, eitherthe AGC
     was already enabled, or the radio was not in a receiving state.
 
 **************************************************************************/
@@ -516,7 +516,7 @@ int agc_enable(void)
   RadioPtr = (Radio *)radioPtr;
 
   // Default to failure.
-  success = false;
+  success = 0;
 
   //_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
   // Ensure that the radio is already in the receiving state so
@@ -531,13 +531,13 @@ int agc_enable(void)
       resetBlankingSystem();
 
       // Enable the AGC.
-      enabled = true;
+      enabled = 1;
 
       // Allow callback notification.
       DataProcessorPtr->enableSignalMagnitudeNotification();
 
       // Indicate success.
-      success = true;
+      success = 1;
     } // if
   } // if
 
@@ -560,8 +560,8 @@ int agc_enable(void)
   Outputs:
 
     success - A flag that indicates whether or not the operation was
-    successful.  A value of true indicates that the operation was
-    successful, and a value of false indicates that the AGC was already
+    successful.  A value of 1 indicates that the operation was
+    successful, and a value of 0 indicates that the AGC was already
     disabled.
 
 **************************************************************************/
@@ -574,18 +574,18 @@ int agc_disable(void)
   DataProcessorPtr = (IqDataProcessor *)dataProcessorPtr;
 
   // Default to failure.
-  success = false;
+  success = 0;
 
   if (enabled)
   {
     // Disable the AGC.
-    enabled = false;
+    enabled = 0;
 
     // Turn off notification.
     DataProcessorPtr->disableSignalMagnitudeNotification();
 
     // Indicate success.
-    success = true;
+    success = 1;
   } // if
 
   return (success);
@@ -608,8 +608,8 @@ int agc_disable(void)
   Outputs:
 
     success - A flag that indicates whether or not the AGC is enabled.
-    A value of true indicates that the AGC is enabled, and a value of
-    false indicates that the AGC is disabled.
+    A value of 1 indicates that the AGC is enabled, and a value of
+    0 indicates that the AGC is disabled.
 
 **************************************************************************/
 int agc_isEnabled(void)
@@ -644,7 +644,7 @@ void agc_resetBlankingSystem(void)
   blankingCounter = 0;
 
   // Ensure that the AGC can run the next time.
-  receiveGainWasAdjusted = false;
+  receiveGainWasAdjusted = 0;
 
   return;
 
@@ -679,7 +679,7 @@ void agc_run(uint32_t signalMagnitude)
   RadioPtr = (Radio *)radioPtr;
 
   // Default to not being able to run.
-  allowedToRun = false;
+  allowedToRun = 0;
 
   //_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
   // This block of code deals with the case where some external
@@ -718,13 +718,13 @@ void agc_run(uint32_t signalMagnitude)
       resetBlankingSystem();
 
       // Let the AGC run.
-      allowedToRun = true;
+      allowedToRun = 1;
     } // else
   } // if
   else
   {
     // Let the AGC run if no gain adjustment was made.
-    allowedToRun = true;
+    allowedToRun = 1;
   } // else
   //_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
 
@@ -892,7 +892,7 @@ void agc_runLowpass(uint32_t signalMagnitude)
     success = RadioPtr->setReceiveIfGainInDb(0,ifGainInDb);
 
     // Indicate that the gain was modified.
-    receiveGainWasAdjusted = true;
+    receiveGainWasAdjusted = 1;
   } // if
   //_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
 
@@ -1065,7 +1065,7 @@ void agc_runHarris(uint32_t signalMagnitude)
     success = RadioPtr->setReceiveIfGainInDb(0,ifGainInDb);
 
     // Indicate that the gain was modified.
-    receiveGainWasAdjusted = true;
+    receiveGainWasAdjusted = 1;
   } // if
   //_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
 
