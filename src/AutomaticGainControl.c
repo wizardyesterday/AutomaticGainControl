@@ -182,8 +182,6 @@ void agc_init(int32_t operatingPointInDbFs)
  
 } // agc_init
 
-#if 0
-
 /**************************************************************************
 
   Name: agc_setDeadband
@@ -218,7 +216,7 @@ int agc_setDeadband(uint32_t deadbandInDb)
   if ((deadbandInDb >= 0) && (deadbandInDb <= 10))
   {
     // Update the attribute.
-    this->deadbandInDb = deadbandInDb;
+    me.deadbandInDb = deadbandInDb;
 
     // Indicate success.
     success = 1;
@@ -227,6 +225,8 @@ int agc_setDeadband(uint32_t deadbandInDb)
   return (success);
 
 } // agc_setDeadband
+
+#if 0
 
 /**************************************************************************
 
