@@ -804,7 +804,6 @@ void runHarris(int32_t signalIndBFs)
 
 } // runHarris
 
-#if 0
 
 /**************************************************************************
 
@@ -827,43 +826,42 @@ void runHarris(int32_t signalIndBFs)
 void agc_displayInternalInformation(void)
 {
 
-  nprintf(stderr,"\n--------------------------------------------\n");
-  nprintf(stderr,"AGC Internal Information\n");
-  nprintf(stderr,"--------------------------------------------\n");
+  (stderr,"\n--------------------------------------------\n");
+  fprintf(stderr,"AGC Internal Information\n");
+  fprintf(stderr,"--------------------------------------------\n");
 
-  if (enabled)
+  if (me.enabled)
   {
-    nprintf(stderr,"AGC Emabled               : Yes\n");
+    fprintf(stderr,"AGC Emabled               : Yes\n");
   } // if
   else
   {
-    nprintf(stderr,"AGC Emabled               : No\n");
+    fprintf(stderr,"AGC Emabled               : No\n");
   } // else
 
-  nprintf(stderr,"Blanking Counter            : %u ticks\n",
-          blankingCounter);
+  fprintf(stderr,"Blanking Counter            : %u ticks\n",
+          me.blankingCounter);
 
-  nprintf(stderr,"Blanking Limit              : %u ticks\n",
-          blankingLimit);
+  fprintf(stderr,"Blanking Limit              : %u ticks\n",
+          me.blankingLimit);
 
-  nprintf(stderr,"Lowpass Filter Coefficient: %0.3f\n",
-          alpha);
+  fprintf(stderr,"Lowpass Filter Coefficient: %0.3f\n",
+          me.alpha);
 
-  nprintf(stderr,"Deadband                    : %u dB\n",
-          deadbandInDb);
+  fprintf(stderr,"Deadband                    : %u dB\n",
+          me.deadbandInDb);
 
-  nprintf(stderr,"Operating Point             : %d dBFs\n",
-          operatingPointInDbFs);
+  fprintf(stderr,"Operating Point             : %d dBFs\n",
+          me.operatingPointInDbFs);
 
- nprintf(stderr,"Gain                         : %u dB\n",
-          ifGainInDb);
+ fprintf(stderr,"Gain                         : %u dB\n",
+          me.gainInDb);
 
-  nprintf(stderr,"RSSI (After Amp)            : %d dBFs\n",
-          normalizedSignalLevelInDbFs);
-  nprintf(stderr,"/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/\n");
+  fprintf(stderr,"RSSI (After Amp)            : %d dBFs\n",
+          me.normalizedSignalLevelInDbFs);
+  fprintf(stderr,"/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/\n");
 
   return;
 
 } // agc_displayInternalInformation
 
-#endif
