@@ -1,13 +1,6 @@
 //**********************************************************************
-// file name: AutomaticGainControl.cc
+// file name: AutomaticGainControl.c
 //**********************************************************************
-
-//_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
-// My thanks go to Erlend, also known as LB6MI.
-// Without the insight that he has provided to me, I
-// probably would not have created this subsystem.
-// Chris G. 03/27/2022
-//_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
 
 #include <stdio.h>
 #include <math.h>
@@ -64,8 +57,83 @@ static void runHarris(int32_t signalIndBFs);
 //_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
 // Hardware-dependent functions to be filled in.
 //_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
-static int setHardwareGainInDb(uint32_t gainInDb);
+static void setHardwareGainInDb(uint32_t gainInDb);
 static uint32_t getHardwareGainInDb(void);
+//_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
+
+//_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
+// Hardware-pecific functions.
+//_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
+
+/**************************************************************************
+
+  Name: setHardwareGainInDb
+
+  Purpose: The purpose of this function is to set the gain of the
+  variable gain amplifier in the hardware.
+  It is the responsibility of the developer, that uses this AGC, to fill
+  in the code that retrieves the current gain setting of the hardware.
+  By isolating all hardware-specific aspects in this function, the rest of
+  the SAGC code is hardware-agnostic.
+
+  Calling Sequence: setHardwareGainInDb(gainInDb)
+
+  Inputs:
+
+    gain - The gain in decibels.
+
+  Outputs:
+
+    None.
+
+**************************************************************************/
+void setHardwareGainInDb(uint32_t gainInDb)
+{
+
+  // This will be filled in by the developer that has knowledge of the
+  // hardware. This allows the rest of te code to be hardware-agnostic.
+
+  return;
+
+} // setHardwareGainInDb
+
+/**************************************************************************
+
+  Name: getHardwareGainInDb
+
+  Purpose: The purpose of this function is the interface to run the AGC.
+  It is the responsibility of the developer, that uses this AGC, to fill
+  in the code that retrieves the current gain setting of the hardware.
+  By isolating all hardware-specific aspects in this function, the rest of
+  the SAGC code is hardware-agnostic.
+
+  Calling Sequence: gainInDb = getHardwareGainInDb()
+
+  Inputs:
+
+    signalIndBFs - The signal in decibels referenced to full scale.
+
+  Outputs:
+
+    None.
+
+**************************************************************************/
+uint32_t getHardwareGainInDb(void)
+{
+  uint32_t gainInDb;
+
+  // This will be filled in by the developer that has knowledge of the
+  // hardware. This allows the rest of te code to be hardware-agnostic.
+
+  // For now, just return the gain from 
+  gainInDb = me.gainInDb;
+
+  return (gainInDb);
+
+} // getHardwareGainInDb
+
+//_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
+// End of hardware-specific functions
 //_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
 
 /**************************************************************************
