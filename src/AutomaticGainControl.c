@@ -230,64 +230,6 @@ agc_~AutomaticGainControl(void)
 
 /**************************************************************************
 
-  Name: setType
-
-  Purpose: The purpose of this function is to set the operating point
-  of the AGC.
-
-  Calling Sequence: success = setType(type)
-
-  Inputs:
-
-    type - The type of AGC.  A value of 0 indicates that the lowpass AGC
-    is to be used, and a value of 1 indicates that the Harris AGC is to
-    be used.
-
-  Outputs:
-
-    success - A flag that indicates whether the the AGC type was set.
-    A value of 1 indicates that the AGC type was successfully set,
-    and a value of 0 indicates that the AGC type was not set due
-    to an invalid value for the AGC type was specified.
-
-**************************************************************************/
-int agc_setType(uint32_t type)
-{
-  int success;
-
-  // Default to success.
-  success = 1;
-
-  switch (type)
-  {
-    case AGC_TYPE_LOWPASS:
-    {
-      // Update the attribute.
-      agcType = type;
-      break;
-    } // case
-
-    case AGC_TYPE_HARRIS:
-    {
-      // Update the attribute.
-      agcType = type;
-      break;
-    } // case
-
-    default:
-    {
-      // Indicate failure.
-      success = 0;
-      break;
-    } // case
-  } // switch
-
-  return (success);
-
-} // setType
-
-/**************************************************************************
-
   Name: setDeadband
 
   Purpose: The purpose of this function is to set the deadband of the
@@ -689,181 +631,19 @@ void agc_run(uint32_t signalMagnitude)
   else
   {
     // Let the AGC run if no gain adjustment was made.
+
     allowedToRun = 1;
   } // else
   //_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
 
   if (allowedToRun)
   {
-    switch (agcType)
-    {
-      case AGC_TYPE_LOWPASS:
-      {
-        runLowpass(signalMagnitude);
-        break;
-      } // case
-
-      case AGC_TYPE_HARRIS:
-      {
-        runHarris(signalMagnitude);
-        break;
-      } // case
-
-      default:
-      {
-        runLowpass(signalMagnitude);
-        break;
-      } // case
-    } // switch
-  } // else
+    runHarris(signalMagnitude);
+  } // of
 
   return;
 
 } // run
-
-/**************************************************************************
-
-  Name: runLowpass
-
-  Purpose: The purpose of this function is to run the automatic gain
-  control.
-
-  Note:  A large gain error will result in a more rapid convergence
-  to the operating point versus a small gain error.
- 
-  Calling Sequence: runLowpass(signalMagnitude )
-
-  Inputs:
-
-    signalMagnitude - The average magnitude of the IQ data block that
-    was received in units of dBFs.
-
-  Outputs:
-
-    None.
-
-**************************************************************************/
-void agc_runLowpass(uint32_t signalMagnitude)
-{
-  int success;
-  int32_t gainError;
-  int32_t adjustedGain;
-  int32_t signalInDbFs;
-  Radio * RadioPtr;
-
-  // Reference the pointer in the proper context.
-  RadioPtr = (Radio *)radioPtr;
-
-  // Update for display purposes.
-  this->signalMagnitude = signalMagnitude;
-
-  // Convert to decibels referenced to full scale.
-  signalInDbFs = calculatorPtr->convertMagnitudeToDbFs(signalMagnitude);
-
-  // Update for display purposes.
-  normalizedSignalLevelInDbFs = signalInDbFs - ifGainInDb;
-
-  //_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
-  // Compute the gain adjustment.
-  // Allocate gains appropriately.  Here is what we
-  // have to work with:
-  //
-  //   1. The IF amp provides gains from 0 to 46dB
-  //   in nonuniform steps.
-  //
-  // Let's try this first:
-  //
-  //   1. Use the hardware AGC for the LNA and Mixer amps.
-  //
-  //   2. Adjust the IF gain as appropriate to achieve
-  //   the operating point referenced at the antenna input.
-  //
-  // This provides a dynamic range of 46dB (since the IF
-  // amplifier has an adjustable gain from 0 to 46dB), of the
-  // samples that drive the A/D convertor.
-  //_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
-  // Compute the gain adjustment.
-  gainError = operatingPointInDbFs - signalInDbFs;
-
-  //**************************************************
-  // Make sure that we aren't at the gain rails.  If
-  // the system is already at maximum gain, and the
-  // gain error is positive, we don't want to make an
-  // adjustment.  Similarly, if the system is already
-  // at minimum gain, and the gain error is negative,
-  // we don't want to make an adjustment.  This is
-  // easily solved by setting the gain error to zero.
-  //************************************************** 
-  if (ifGainInDb == MAX_ADJUSTIBLE_GAIN)
-  {
-    if (gainError > 0)
-    {
-      gainError = 0;
-    } // if
-  } // if
-  else
-  {
-    if (ifGainInDb == 0)
-    {
-      if (gainError < 0)
-      {
-        gainError = 0;
-      } // if
-    } // if
-  } // else
-  //**************************************************
-
-  // Apply deadband to eliminate gain oscillations.
-  if (abs(gainError) <= deadbandInDb)
-  {
-    gainError = 0;
-  } // if
-
-  adjustedGain = ifGainInDb + gainError;
-
-  //*******************************************************************
-  // Filter the IF gain.
-  //*******************************************************************
-  filteredIfGainInDb = (alpha * (float)adjustedGain) +
-    ((1 - alpha) * filteredIfGainInDb);
-
-  //+++++++++++++++++++++++++++++++++++++++++++
-  // Limit the gain to valid values.
-  //+++++++++++++++++++++++++++++++++++++++++++
-  if (filteredIfGainInDb > MAX_ADJUSTIBLE_GAIN)
-  {
-    filteredIfGainInDb= MAX_ADJUSTIBLE_GAIN;
-  } // if
-  else
-  {
-    if (filteredIfGainInDb < 0)
-    {
-      filteredIfGainInDb = 0;
-    } // if
-  } // else
-  //*******************************************************************
-
-  // Update the attribute.
-  ifGainInDb = (uint32_t)filteredIfGainInDb;
-
-  //+++++++++++++++++++++++++++++++++++++++++++++++++++
-  // Update the receiver gain parameters.
-  //+++++++++++++++++++++++++++++++++++++++++++++++++++
-  // There is no need to update the gain if no change has occurred.
-  // This way, we're nicer to the hardware.
-  if (gainError != 0)
-  {
-    // Update the receiver gain parameters.
-    success = RadioPtr->setReceiveIfGainInDb(0,ifGainInDb);
-
-    // Indicate that the gain was modified.
-    receiveGainWasAdjusted = 1;
-  } // if
-  //_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
-
-  return;
-
-} // runLowpass
 
 /**************************************************************************
 
@@ -1072,50 +852,25 @@ void agc_displayInternalInformation(void)
     nprintf(stderr,"AGC Emabled               : No\n");
   } // else
 
-  switch (agcType)
-  {
-    case AGC_TYPE_LOWPASS:
-    {
-      nprintf(stderr,"AGC Type                  : Lowpass\n");
-      break;
-    } // case
-
-    case AGC_TYPE_HARRIS:
-    {
-      nprintf(stderr,"AGC Type                  : Harris\n");
-      break;
-    } // case
-
-    default:
-    {
-      nprintf(stderr,"AGC Type                  : Lowpass\n");
-      break;
-    } // case
-  } // switch
-
-  nprintf(stderr,"Blanking Counter          : %u ticks\n",
+  nprintf(stderr,"Blanking Counter            : %u ticks\n",
           blankingCounter);
 
-  nprintf(stderr,"Blanking Limit            : %u ticks\n",
+  nprintf(stderr,"Blanking Limit              : %u ticks\n",
           blankingLimit);
 
   nprintf(stderr,"Lowpass Filter Coefficient: %0.3f\n",
           alpha);
 
-  nprintf(stderr,"Deadband                  : %u dB\n",
+  nprintf(stderr,"Deadband                    : %u dB\n",
           deadbandInDb);
 
-  nprintf(stderr,"Operating Point           : %d dBFs\n",
+  nprintf(stderr,"Operating Point             : %d dBFs\n",
           operatingPointInDbFs);
 
- nprintf(stderr,"IF Gain                   : %u dB\n",
+ nprintf(stderr,"Gain                         : %u dB\n",
           ifGainInDb);
 
-  nprintf(stderr,"/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/\n");
-  nprintf(stderr,"Signal Magnitude          : %u\n",
-          signalMagnitude);
-
-  nprintf(stderr,"RSSI (After Mixer)        : %d dBFs\n",
+  nprintf(stderr,"RSSI (After Amp)            : %d dBFs\n",
           normalizedSignalLevelInDbFs);
   nprintf(stderr,"/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/\n");
 
