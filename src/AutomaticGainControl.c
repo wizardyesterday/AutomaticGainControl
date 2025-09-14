@@ -57,12 +57,16 @@ static struct privateData
 
 } me;
 
-static void agc_resetBlankingSystem(void);
-static int agc_setGain(uint32_t gainInDb);
-static void agc_run(int32_t signalIndBFs);
-static uint32_t agc_getGainInDb(void);
-static void agc_adjustGain(uint32_tgainInDb);
-static int32_t agc_getGainChangedBySomeoneElse(void);
+static void resetBlankingSystem(void);
+static void run(int32_t signalIndBFs);
+static void runHarris(int32_t signalIndBFs);
+
+//_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
+// Hardware-dependent functions to be filled in.
+//_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
+static int setHardwareGainInDb(uint32_t gainInDb);
+static uint32_t getHardwareGainInDb(void);
+//_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
 
 /**************************************************************************
 
@@ -90,7 +94,7 @@ void agc_acceptData(int32_t signalIndBFs)
     if (me.enabled)
     {
       // Process the signal.
-      agc_run(signalIndBFs);
+      run(signalIndBFs);
     } // if
   } // if
 
@@ -267,7 +271,7 @@ int agc_setBlankingLimit(uint32_t blankingLimit)
     me.blankingLimit = blankingLimit;
 
     // Set the blanking system to its initial state.
-    agc_resetBlankingSystem();
+    resetBlankingSystem();
 
     // Indicate success.
     success = 1;
@@ -379,7 +383,7 @@ int agc_enable(void)
   if (!me.enabled)
   {
     // Set the system to an initial state.
-    agc_resetBlankingSystem();
+    resetBlankingSystem();
 
     // Enable the AGC.
     me.enabled = 1;
@@ -460,12 +464,12 @@ int agc_isEnabled(void)
 
 /**************************************************************************
 
-  Name: agc_resetBlankingSystem
+  Name: resetBlankingSystem
 
   Purpose: The purpose of this function is to reset the blanking system
   to its starting state.
 
-  Calling Sequence: agc_resetBlankingSystem()
+  Calling Sequence: resetBlankingSystem()
 
   Inputs:
 
@@ -476,7 +480,7 @@ int agc_isEnabled(void)
     None.
 
 **************************************************************************/
-void agc_resetBlankingSystem(void)
+void resetBlankingSystem(void)
 {
 
   // Reset the counter for the next blanking interval.
@@ -487,16 +491,16 @@ void agc_resetBlankingSystem(void)
 
   return;
 
-} // agc_resetBlankingSystem
+} // resetBlankingSystem
 
 /**************************************************************************
 
-  Name: agc_run
+  Name: run
 
   Purpose: The purpose of this function is to run the selected automatic
   gain control algorithm.
  
-  Calling Sequence: agc_run(agc_run(int32_t signalIndBFs)
+  Calling Sequence: run(int32_t signalIndBFs)
 
   Inputs:
 
@@ -508,7 +512,7 @@ void agc_resetBlankingSystem(void)
     None.
 
 **************************************************************************/
-void agc_run(int32_t signalIndBFs)
+void run(int32_t signalIndBFs)
 {
   int allowedToRun;
   uint32_t adjustableGain;
@@ -523,7 +527,7 @@ void agc_run(int32_t signalIndBFs)
   // inconsistancy can occur between the hardware setting of
   // the IF gain, and the AGC's idea of what the gain should be.
   //_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
-  adjustableGain = agc_getGainChangedBySomeoneElse();
+  adjustableGain = getHardwareGainInDb();
 
   if (me.gainInDb != adjustableGain)
   {
@@ -550,7 +554,7 @@ void agc_run(int32_t signalIndBFs)
     else
     {
       // We're done blanking.
-      agc_resetBlankingSystem();
+      resetBlankingSystem();
 
       // Let the AGC run.
       allowedToRun = 1;
@@ -566,18 +570,16 @@ void agc_run(int32_t signalIndBFs)
 
   if (allowedToRun)
   {
-    agc_runHarris(signalIndBFs);
+    runHarris(signalIndBFs);
   } // of
 
   return;
 
-} // agc_run
-
-#if 0
+} // run
 
 /**************************************************************************
 
-  Name: agc_runHarris
+  Name: runHarris
 
   Purpose: The purpose of this function is to run the automatic gain
   control.  This is the implementation of the algorithm described by
@@ -617,7 +619,7 @@ void agc_run(int32_t signalIndBFs)
     g(n+1) = g(n) + [alpha * e(n)]
 
 
-  Calling Sequence: agc_runHarris(int32_t signalIndBFs)
+  Calling Sequence: runHarris(int32_t signalIndBFs)
 
   Inputs:
 
@@ -628,13 +630,13 @@ void agc_run(int32_t signalIndBFs)
     None.
 
 **************************************************************************/
-void agc_runHarris(int32_t signalIndBFs)
+void runHarris(int32_t signalIndBFs)
 {
   int success;
   int32_t gainError;
 
   // Update for display purposes.
-  normalizedSignalLevelInDbFs = signalInDbFs - ifGainInDb;
+  me.normalizedSignalLevelInDbFs = signalIndBFs - me.gainInDb;
 
   //_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
   // Compute the gain adjustment.
@@ -646,9 +648,7 @@ void agc_runHarris(int32_t signalIndBFs)
   //
   // Let's try this first:
   //
-  //   1. Use the hardware AGC for the LNA and Mixer amps.
-  //
-  //   2. Adjust the IF gain as appropriate to achieve
+  //   1. Adjust the gain as appropriate to achieve
   //   the operating point referenced at the antenna input.
   //
   // This provides a dynamic range of 46dB (since the IF
@@ -656,7 +656,7 @@ void agc_runHarris(int32_t signalIndBFs)
   // samples that drive the A/D convertor.
   //_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
   // Compute the gain adjustment.
-  gainError = operatingPointInDbFs - signalInDbFs;
+  gainError = me.operatingPointInDbFs - signalIndBFs;
 
   //**************************************************
   // Make sure that we aren't at the gain rails.  If
@@ -667,7 +667,7 @@ void agc_runHarris(int32_t signalIndBFs)
   // we don't want to make an adjustment.  This is
   // easily solved by setting the gain error to zero.
   //************************************************** 
-  if (ifGainInDb == MAX_ADJUSTIBLE_GAIN)
+  if (me.gainInDb == MAX_ADJUSTIBLE_GAIN)
   {
     if (gainError > 0)
     {
@@ -676,7 +676,7 @@ void agc_runHarris(int32_t signalIndBFs)
   } // if
   else
   {
-    if (ifGainInDb == 0)
+    if (me.gainInDb == 0)
     {
       if (gainError < 0)
       {
@@ -687,7 +687,7 @@ void agc_runHarris(int32_t signalIndBFs)
   //**************************************************
 
   // Apply deadband to eliminate gain oscillations.
-  if (abs(gainError) <= deadbandInDb)
+  if (abs(gainError) <= me.deadbandInDb)
   {
     gainError = 0;
   } // if
@@ -695,27 +695,27 @@ void agc_runHarris(int32_t signalIndBFs)
   //*******************************************************************
   // Run the AGC algorithm.
   //*******************************************************************
-  filteredIfGainInDb = filteredIfGainInDb +
-    (alpha * (float)gainError);
+  me.filteredGainInDb = me.filteredGainInDb +
+    (me.alpha * (float)gainError);
 
   //+++++++++++++++++++++++++++++++++++++++++++
   // Limit the gain to valid values.
   //+++++++++++++++++++++++++++++++++++++++++++
-  if (filteredIfGainInDb > MAX_ADJUSTIBLE_GAIN)
+  if (me.filteredGainInDb > MAX_ADJUSTIBLE_GAIN)
   {
-    filteredIfGainInDb = MAX_ADJUSTIBLE_GAIN;
+    me.filteredGainInDb = MAX_ADJUSTIBLE_GAIN;
   } // if
   else
   {
-    if (filteredIfGainInDb < 0)
+    if (me.filteredGainInDb < 0)
     {
-      filteredIfGainInDb = 0;
+      me.filteredGainInDb = 0;
     } // if
   } // else
   //*******************************************************************
 
   // Update the attribute.
-  me.gainInDb = (uint32_t)filteredIfGainInDb;
+  me.gainInDb = (uint32_t)me.filteredGainInDb;
 
   //+++++++++++++++++++++++++++++++++++++++++++++++++++
   // Update the receiver gain parameters.
@@ -725,16 +725,18 @@ void agc_runHarris(int32_t signalIndBFs)
   if (gainError != 0)
   {
     // Update the receiver gain parameters.
-    success = RadioPtr->setReceiveIfGainInDb(0,ifGainInDb);
+    setHardwareGainInDb(me.gainInDb);
 
     // Indicate that the gain was modified.
-    receiveGainWasAdjusted = 1;
+    me.gainWasAdjusted = 1;
   } // if
   //_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
 
   return;
 
-} // agc_runHarris
+} // runHarris
+
+#if 0
 
 /**************************************************************************
 
