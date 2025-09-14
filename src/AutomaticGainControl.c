@@ -59,7 +59,8 @@ static struct privateData
 
 static void agc_resetBlankingSystem(void);
 static int agc_setGain(uint32_t gainInDb);
-static uint32_t getGainInDb(void);
+static iint32_t agc_getGainInDb(void);
+static int32_t agc_getGainChangedBySomeoneElse(void);
 
 /**************************************************************************
 
@@ -226,8 +227,6 @@ int agc_setDeadband(uint32_t deadbandInDb)
 
 } // agc_setDeadband
 
-#if 0
-
 /**************************************************************************
 
   Name: agc_setBlankingLimit
@@ -263,10 +262,10 @@ int agc_setBlankingLimit(uint32_t blankingLimit)
   if ((blankingLimit >= 0) && (blankingLimit <= 10))
   {
     // Update the attributes.
-    this->blankingLimit = blankingLimit;
+    me.blankingLimit = blankingLimit;
 
     // Set the blanking system to its initial state.
-    resetBlankingSystem();
+    agc_resetBlankingSystem();
 
     // Indicate success.
     success = 1;
@@ -299,7 +298,7 @@ void agc_setOperatingPoint(int32_t operatingPointInDbFs)
 {
 
   // Update operating point.
-  this->operatingPointInDbFs = operatingPointInDbFs;
+  me.operatingPointInDbFs = operatingPointInDbFs;
 
   return;
 
@@ -338,7 +337,7 @@ int agc_setAgcFilterCoefficient(float coefficient)
   if ((coefficient >= 0.001) && (coefficient < 0.999))
   {
     // Update the attribute.
-    alpha = coefficient;
+    me.alpha = coefficient;
 
     // Indicate success.
     success = 1;
@@ -371,37 +370,20 @@ int agc_setAgcFilterCoefficient(float coefficient)
 int agc_enable(void)
 {
   int success;
-  IqDataProcessor *DataProcessorPtr;
-  Radio *RadioPtr;
 
-  // Reference the pointers in the proper context.
-  DataProcessorPtr = (IqDataProcessor *)dataProcessorPtr;
-  RadioPtr = (Radio *)radioPtr;
-
-  // Default to failure.
+ // Default to failure.
   success = 0;
 
-  //_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
-  // Ensure that the radio is already in the receiving state so
-  // that AGC transients do not occur when the receiver is
-  // first enabled.
-  //_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
-  if (RadioPtr->isReceiving())
+  if (!me.enabled)
   {
-    if (!enabled)
-    {
-      // Set the system to an initial state.
-      resetBlankingSystem();
+    // Set the system to an initial state.
+    agc_resetBlankingSystem();
 
-      // Enable the AGC.
-      enabled = 1;
+    // Enable the AGC.
+    me.enabled = 1;
 
-      // Allow callback notification.
-      DataProcessorPtr->enableSignalMagnitudeNotification();
-
-      // Indicate success.
-      success = 1;
-    } // if
+    // Indicate success.
+    success = 1;
   } // if
 
   return (success);
@@ -431,23 +413,15 @@ int agc_enable(void)
 int agc_disable(void)
 {
   int success;
-  IqDataProcessor *DataProcessorPtr;
 
-  // Reference the pointer in the proper context.
-  DataProcessorPtr = (IqDataProcessor *)dataProcessorPtr;
-
-  // Default to failure.
+ // Default to failure.
   success = 0;
 
-  if (enabled)
+  if (me.enabled)
   {
     // Disable the AGC.
-    enabled = 0;
+    me.enabled = 0;
 
-    // Turn off notification.
-    DataProcessorPtr->disableSignalMagnitudeNotification();
-
-    // Indicate success.
     success = 1;
   } // if
 
@@ -457,7 +431,7 @@ int agc_disable(void)
 
 /**************************************************************************
 
-  Name: iagc_sEnabled
+  Name: iagc_isEnabled
 
   Purpose: The purpose of this function is to determine whether or not
   the AGC is enabled.
@@ -478,7 +452,7 @@ int agc_disable(void)
 int agc_isEnabled(void)
 {
 
-  return (enabled);
+  return (me.enabled);
 
 } // agc_isEnabled
 
@@ -504,14 +478,16 @@ void agc_resetBlankingSystem(void)
 {
 
   // Reset the counter for the next blanking interval.
-  blankingCounter = 0;
+  me.blankingCounter = 0;
 
   // Ensure that the AGC can run the next time.
-  receiveGainWasAdjusted = 0;
+  me.gainWasAdjusted = 0;
 
   return;
 
 } // agc_resetBlankingSystem
+
+#if 0
 
 /**************************************************************************
 
@@ -532,16 +508,12 @@ void agc_resetBlankingSystem(void)
     None.
 
 **************************************************************************/
-void agc_run(uint32_t signalMagnitude)
+void agc_run(int32_t signalIndBFs)
 {
   int allowedToRun;
   uint32_t adjustableGain;
-  Radio * RadioPtr;
 
-  // Reference the pointer in the proper context.
-  RadioPtr = (Radio *)radioPtr;
-
-  // Default to not being able to run.
+ // Default to not being able to run.
   allowedToRun = 0;
 
   //_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
@@ -551,11 +523,11 @@ void agc_run(uint32_t signalMagnitude)
   // inconsistancy can occur between the hardware setting of
   // the IF gain, and the AGC's idea of what the gain should be.
   //_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
-  adjustableGain = RadioPtr->getReceiveIfGainInDb();
+  adjustableGain = agc_getGainChangedBySomeoneElse();
 
-  if (ifGainInDb != adjustableGain)
+  if (me.gainInDb != adjustableGain)
   {
-    ifGainInDb = adjustableGain;
+    me.gainInDb = adjustableGain;
   } // if
   //_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
 
@@ -568,17 +540,17 @@ void agc_run(uint32_t signalMagnitude)
   // the AGC will be allowed to run.  This allows the AGC to
   // react quickly to signal changes.
   //_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
-  if (receiveGainWasAdjusted)
+  if (me.gainWasAdjusted)
   {
-    if (blankingCounter < blankingLimit)
+    if (me.blankingCounter < me.blankingLimit)
     {
       // The systemn is still blanked.
-      blankingCounter++;
+      me.blankingCounter++;
     } // if
     else
     {
       // We're done blanking.
-      resetBlankingSystem();
+      agc_resetBlankingSystem();
 
       // Let the AGC run.
       allowedToRun = 1;
@@ -594,7 +566,7 @@ void agc_run(uint32_t signalMagnitude)
 
   if (allowedToRun)
   {
-    runHarris(signalMagnitude);
+    agc_runHarris(signalIndBFs);
   } // of
 
   return;
