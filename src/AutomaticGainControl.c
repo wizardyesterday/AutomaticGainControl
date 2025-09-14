@@ -27,19 +27,18 @@ static struct privateData
   // Don't run unless the system has been initialized.
   int initialized;
 
-  // The AGC algorithm to be used.
-  uint32_t agcType;
-
   // These parameters are sometimes needed to avoid transients.
   uint32_t blankingCounter;
   uint32_t blankingLimit;
-  int receiveGainWasAdjusted;
+  int gainWasAdjusted;
 
   // Yes, we need some deadband.
   int32_t deadbandInDb;
 
   // If 1, the AGC is running.
   int enabled;
+
+  int32_t signalInDbFs;
 
   // The goal.
   int32_t operatingPointInDbFs;
@@ -51,10 +50,7 @@ static struct privateData
   uint32_t gainInDb;
  
   // Filtered gain.
-  float filterGainInDb;
-
-  // Magnitude of the latest signal.
-  uint32_t signalMagnitude;
+  float filteredGainInDb;
 
   // Signal level before amplification.
   int32_t normalizedSignalLevelInDbFs;
@@ -99,20 +95,16 @@ void agc_acceptData(int32_t signalIndBFs)
 
 } // agc_acceptData
 
-#if 0
-
 /************************************************************************
 
-  Name: AutomaticGainControl
+  Name: agc_init
 
-  Purpose: The purpose of this function is to serve as the constructor
-  of an AutomaticGainControl object.
+  Purpose: The purpose of this function is to initialize the AGC
+  subsystem.
 
-  Calling Sequence: AutomaticGainControl(radioPtr,operatingPointInDbFs)
+  Calling Sequence: agc_init(operatingPointInDbFs)
 
   Inputs:
-
-    radioPtr - A pointer to a Radio instance.
 
     operatingPointInDbFs - The AGC operating point in decibels referenced
     to full scale.  Full scale represents 0dBFs, otherwise, all other
@@ -123,37 +115,25 @@ void agc_acceptData(int32_t signalIndBFs)
     None.
 
 **************************************************************************/
-agc_AutomaticGainControl(void *radioPtr,
-                                           int32_t operatingPointInDbFs)
+void agc_init(int32_t operatingPointInDbFs)
 {
-  Radio * RadioPtr;
-  IqDataProcessor *DataProcessorPtr;
-
-  // Reference this for later use.
-  this->radioPtr = radioPtr;
 
   // Reference the set point to the antenna input.
-  this->operatingPointInDbFs = operatingPointInDbFs;
-
-  // Reference the pointer in the proper context.
-  RadioPtr = (Radio *)radioPtr;
-
-  // Default to snappier system.
-  agcType = AGC_TYPE_HARRIS;
+  me.operatingPointInDbFs = operatingPointInDbFs;
 
   // Start with a reasonable deadband.
-  deadbandInDb = 1;
+  me.deadbandInDb = 1;
 
   // Set this to the midrange.
-  signalMagnitude = 64;
+  me.signalInDbFs = -12;
 
   // Default to disabled.
-  enabled = 0;
+  me.enabled = 0;
 
   //_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
   // Sometimes, adjustments need to be avoided when a transient in the
   // hardware occurs as a result of a gain adjustment.  In the rtlsdr,
-  // it was initially thought that the transient was occurring in the
+  // it was initially thought that the tagc_init(int32_t operatingPointInDbFs)ransient was occurring in the
   // tuner chip.  This was not the case.  Instead, a transient in the
   // demodulated data was occurring as a result of the IIC repeater
   // being enabled (and/or disabled) in the Realtek 2832U chip.  The
@@ -163,20 +143,20 @@ agc_AutomaticGainControl(void *radioPtr,
   // limit cycles.  The blankingLimit is configurable so that the
   // user can change the value to suit the needs of the application.
   //_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
-  blankingCounter = 0;
-  blankingLimit = 1;
+  me.blankingCounter = 0;
+  me.blankingLimit = 1;
 
   // Allow the AGC to run the first time.
-  receiveGainWasAdjusted = 0;
+  me.gainWasAdjusted = 0;
   //_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
 
   //_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
  // This is a good starting point for the receiver gain
   // values.
   //_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
-  ifGainInDb = 24;
+  me.gainInDb = 24;
 
-  normalizedSignalLevelInDbFs =  -ifGainInDb;
+  me.normalizedSignalLevelInDbFs =me.gainInDb;
   //_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
 
   //_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
@@ -184,40 +164,25 @@ agc_AutomaticGainControl(void *radioPtr,
   // as a first-order difference equation.
   //_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
   // Initial condition of filter memory.
-  filteredIfGainInDb = 24;
+  me.filteredGainInDb = 24;
 
   //+++++++++++++++++++++++++++++++++++++++++++++++++
   // Set the AGC time constant such that gain
   // adjustment occurs rapidly while maintaining
   // system stability.
   //+++++++++++++++++++++++++++++++++++++++++++++++++
-  alpha = 0.8;
+  me.alpha = 0.8;
   //+++++++++++++++++++++++++++++++++++++++++++++++++
   //_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
 
-  //_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
-  // Register the callback to the IqDataProcessor.
-  //_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
-  // Retrieve the object instance.  
-  dataProcessorPtr = RadioPtr->getIqProcessor();
-
-  // Reference the pointer in the proper context.
-  DataProcessorPtr = (IqDataProcessor *)dataProcessorPtr;
-
-  // Turn off notification.
-  DataProcessorPtr->disableSignalMagnitudeNotification();
-
-  // Register the callback.
-  DataProcessorPtr->registerSignalMagnitudeCallback(signalMagnitudeCallback,
-                                                    this);
-  //_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
-
-  // Instantiate for a maximum signal magnitude of 127.
-  calculatorPtr = new DbfsCalculator(7);
+  // This is the top level qualifier for the AGC to run.
+  me.initialized = 1;
 
   return;
  
-} // AutomaticGainControl
+} // agc_init
+
+#if 0
 
 /**************************************************************************
 

@@ -9,9 +9,9 @@
 #include <unistd.h>
 #include <stdint.h>
 
+void agc_init(int32_t operatingPointInDbFs);
 void agc_setOperatingPoint(int32_t operatingPointInDbFs);
 int agc_setAgcFilterCoefficient(float coefficient);
-int agc_setType(uint32_t type);
 int agc_setDeadband(uint32_t deadbandInDb);
 int agc_setBlankingLimit(uint32_t blankingLimit);
 int agc_enable(void);
