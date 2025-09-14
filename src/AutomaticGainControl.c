@@ -643,33 +643,21 @@ void agc_run(uint32_t signalMagnitude)
     g(n+1) = g(n) + [alpha * e(n)]
 
 
-  Calling Sequence: runHarris(signalMagnitude )
+  Calling Sequence: agc_runHarris(int32_t signalIndBFs)
 
   Inputs:
 
-    signalMagnitude - The average magnitude of the IQ data block that
-    was received in units of dBFs.
+    signalIndBFs - The signal in decibels referenced to full scale.
 
   Outputs:
 
     None.
 
 **************************************************************************/
-void agc_runHarris(uint32_t signalMagnitude)
+void agc_runHarris(int32_t signalIndBFs)
 {
   int success;
   int32_t gainError;
-  int32_t signalInDbFs;
-  Radio * RadioPtr;
-
-  // Reference the pointer in the proper context.
-  RadioPtr = (Radio *)radioPtr;
-
-  // Update for display purposes.
-  this->signalMagnitude = signalMagnitude;
-
-  // Convert to decibels refdeltaGainerenced to full scale.
-  signalInDbFs = calculatorPtr->convertMagnitudeToDbFs(signalMagnitude);
 
   // Update for display purposes.
   normalizedSignalLevelInDbFs = signalInDbFs - ifGainInDb;

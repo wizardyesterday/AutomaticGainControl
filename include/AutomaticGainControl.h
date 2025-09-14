@@ -18,7 +18,7 @@ int agc_enable(void);
 int agc_disable(void);
 int agc_isEnabled(void);
 void agc_acceptData(int32_t signalIndBFs);
-void agc_runHarris(uint32_t signalMagnitude);
+void agc_runHarris(int32_t signalIndBFs);
 void agc_displayInternalInformation(void);
 
 #endif // _AUTOMATICGAINCONTROL_H_
