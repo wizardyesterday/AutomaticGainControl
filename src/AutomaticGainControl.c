@@ -61,6 +61,7 @@ static void agc_resetBlankingSystem(void);
 static int agc_setGain(uint32_t gainInDb);
 static void agc_run(int32_t signalIndBFs);
 static uint32_t agc_getGainInDb(void);
+static void agc_adjustGain(uint32_tgainInDb);
 static int32_t agc_getGainChangedBySomeoneElse(void);
 
 /**************************************************************************
@@ -714,7 +715,7 @@ void agc_runHarris(int32_t signalIndBFs)
   //*******************************************************************
 
   // Update the attribute.
-  ifGainInDb = (uint32_t)filteredIfGainInDb;
+  me.gainInDb = (uint32_t)filteredIfGainInDb;
 
   //+++++++++++++++++++++++++++++++++++++++++++++++++++
   // Update the receiver gain parameters.
