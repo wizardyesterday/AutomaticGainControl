@@ -48,6 +48,11 @@ static struct privateData
   // Signal level before amplification.
   int32_t normalizedSignalLevelInDbFs;
 
+  // Gain set callback pointer to request client to set gain.
+  void (*gainSetCallbackPtr)(uint32_t gainIndB);
+
+  // Gain rerieval callback pointer to request gain from e client.
+  uint32_t (*gainGetCallbackPtr)(void);
 } me;
 
 static void resetBlankingSystem(void);
@@ -190,7 +195,9 @@ void agc_acceptData(int32_t signalIndBFs)
     None.
 
 **************************************************************************/
-void agc_init(int32_t operatingPointInDbFs)
+void agc_init(int32_t operatingPointInDbFs,
+    void (*gainSetCallbackPtr)(uint32_t gainIndB),
+    uint32_t (*gainGetCallbackPtr)(void))
 {
 
   // Reference the set point to the antenna input.

@@ -9,7 +9,10 @@
 #include <unistd.h>
 #include <stdint.h>
 
-void agc_init(int32_t operatingPointInDbFs);
+void agc_init(int32_t operatingPointInDbFs,
+ void (*gainSetCallbackPtr)(uint32_t gainIndB),
+ uint32_t (*gainGetCallbackPtr)(void));
+
 void agc_setOperatingPoint(int32_t operatingPointInDbFs);
 int agc_setAgcFilterCoefficient(float coefficient);
 int agc_setDeadband(uint32_t deadbandInDb);
