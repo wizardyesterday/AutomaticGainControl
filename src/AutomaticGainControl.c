@@ -94,7 +94,7 @@ static uint32_t getHardwareGainInDb(void);
 void setHardwareGainInDb(uint32_t gainInDb)
 {
 
-  // The client callback will dperform e haed-centric processing.
+  // The client callback will perform e hardware-centric processing.
   if (me.gainSetCallbackPtr != NULL)
   {
     me.gainSetCallbackPtr(gainInDb);
@@ -134,7 +134,7 @@ uint32_t getHardwareGainInDb(void)
   // Default if we don't have a cient callback function.
   gainInDb = me.gainInDb;
 
-  // The client callback will dperform e haed-centric processing.
+  // The client callback will perform hardware-centric processing.
   if (me.gainGetCallbackPtr != NULL)
   {
     gainInDb = me.gainGetCallbackPtr();
