@@ -9,7 +9,7 @@
 #include <unistd.h>
 #include <stdint.h>
 
-void agc_init(int32_t operatingPointInDbFs,
+ void agc_init(int32_t operatingPointInDbFs,
  void (*gainSetCallbackPtr)(uint32_t gainIndB),
  uint32_t (*gainGetCallbackPtr)(void));
 

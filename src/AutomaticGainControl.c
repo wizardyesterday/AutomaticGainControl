@@ -261,7 +261,7 @@ void agc_init(int32_t operatingPointInDbFs,
   //_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
   me.gainInDb = 24;
 
-  me.normalizedSignalLevelInDbFs =me.gainInDb;
+  me.normalizedSignalLevelInDbFs = -me.gainInDb;
   //_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
 
   //_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
