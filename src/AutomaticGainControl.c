@@ -94,7 +94,7 @@ static uint32_t getHardwareGainInDb(void);
 void setHardwareGainInDb(uint32_t gainInDb)
 {
 
-  // The client callback will perform e hardware-centric processing.
+  // The client callback will perform hardware-centric processing.
   if (me.gainSetCallbackPtr != NULL)
   {
     me.gainSetCallbackPtr(gainInDb);
@@ -196,6 +196,22 @@ void agc_acceptData(int32_t signalIndBFs)
     operatingPointInDbFs - The AGC operating point in decibels referenced
     to full scale.  Full scale represents 0dBFs, otherwise, all other
     values will be negative.
+
+    gainSetCallbackPtr - A pointer to a client callback function that
+    is invoked to request the client application to set the hardware gain.
+    A value of NULL is used if the client does not want to register a
+    callback.
+    If a callback is not registered,the AGC will never modify modify
+    the hardware gain.  In other words, rhe system will have no AGC.
+
+    gainGetCallbackPtr - A pointer to a client callback function that
+    is invoked to request the client application to supply the hardware
+    gain.
+    A value of NULL is used if the client does not want to register a
+    callback.
+    In  other words, if a callback is not registered, the AGC will have
+    no knowledge if the gain was modifies by anyone  else. DO THIS AT
+    YOUR OWN RISK.
 
   Outputs:
 
