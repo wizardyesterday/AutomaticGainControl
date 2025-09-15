@@ -76,10 +76,9 @@ static uint32_t getHardwareGainInDb(void);
 
   Purpose: The purpose of this function is to set the gain of the
   variable gain amplifier in the hardware.
-  It is the responsibility of the developer, that uses this AGC, to fill
-  in the code that retrieves the current gain setting of the hardware.
-  By isolating all hardware-specific aspects in this function, the rest of
-  the SAGC code is hardware-agnostic.
+  It is the responsibility of the callback function to set the hardware
+  gain since the user application is the entity that actually sets the
+  gain.
 
   Calling Sequence: setHardwareGainInDb(gainInDb)
 
@@ -95,8 +94,11 @@ static uint32_t getHardwareGainInDb(void);
 void setHardwareGainInDb(uint32_t gainInDb)
 {
 
-  // This will be filled in by the developer that has knowledge of the
-  // hardware. This allows the rest of te code to be hardware-agnostic.
+  // The client callback will dperform e haed-centric processing.
+  if (me.gainSetCallbackPtr != NULL)
+  {
+    me.gainSetCallbackPtr(gainInDb);
+  } // if
 
   return;
 
@@ -107,10 +109,12 @@ void setHardwareGainInDb(uint32_t gainInDb)
   Name: getHardwareGainInDb
 
   Purpose: The purpose of this function is the interface to run the AGC.
-  It is the responsibility of the developer, that uses this AGC, to fill
-  in the code that retrieves the current gain setting of the hardware.
-  By isolating all hardware-specific aspects in this function, the rest of
-  the SAGC code is hardware-agnostic.
+  It is the responsibility of the developer, that uses this AGC, to 
+  supply a callback function for retrieving te current gain if the client
+  had made any gain changes. In my opioion, the AGC should be disabled if
+  the user wants to manually change the gain.  The only reason this
+  function is needed is to avoid inconnsistancy between the gain that the
+  user manually set and what the AGC automatically set.
 
   Calling Sequence: gainInDb = getHardwareGainInDb()
 
@@ -127,12 +131,15 @@ uint32_t getHardwareGainInDb(void)
 {
   uint32_t gainInDb;
 
-  // This will be filled in by the developer that has knowledge of the
-  // hardware. This allows the rest of te code to be hardware-agnostic.
-
-  // For now, just return the gain from 
+  // Default if we don't have a cient callback function.
   gainInDb = me.gainInDb;
 
+  // The client callback will dperform e haed-centric processing.
+  if (me.gainGetCallbackPtr != NULL)
+  {
+    gainInDb = me.gainGetCallbackPtr();
+  } // if
+ 
   return (gainInDb);
 
 } // getHardwareGainInDb
@@ -256,6 +263,10 @@ void agc_init(int32_t operatingPointInDbFs,
   me.alpha = 0.8;
   //+++++++++++++++++++++++++++++++++++++++++++++++++
   //_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
+
+  // Register the client request callbacks.
+  me.gainSetCallbackPtr = gainSetCallbackPtr;
+  me.gainGetCallbackPtr = gainGetCallbackPtr;
 
   // This is the top level qualifier for the AGC to run.
   me.initialized = 1;
