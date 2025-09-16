@@ -5,23 +5,24 @@
 
 #include "AutomaticGainControl.h"
 
-static uint32_t gainInDbFs;
+//static uint32_t gainInDbFs;
+static uint32_t gainInDb;
 
-void setGainCallback(uint32_t gainInDbFs)
+static void setGainCallback(uint32_t gainInDb)
 {
 
-  fprintf(stdout,"setGainCallback\n");
+  fprintf(stdout,"setGainCallback() gain: %u dB\n",gainInDb);
 
   return;
 
 } // setGainCallback
 
-uint32_t getGainCallback(void)
+static uint32_t getGainCallback(void)
 {
 
-  fprintf(stdout,"setGainCallback\n");
+  fprintf(stdout,"getGainCallback()\n");
 
-  return (gainInDbFs);
+  return (gainInDb);
 
 } // getGainCallback
   
@@ -29,9 +30,9 @@ int main(int argc,char **argv)
 {
   uint32_t i;
 
-  gainInDbFs = 0;
+  gainInDb = 25;
 
-  agc_init(gainInDbFs,setGainCallback,getGainCallback);
+  agc_init(gainInDb,setGainCallback,getGainCallback);
 
   i = 0;
 
