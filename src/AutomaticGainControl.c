@@ -49,10 +49,10 @@ static struct privateData
   int32_t normalizedSignalLevelInDbFs;
 
   // Gain set callback pointer to request client to set gain.
-  void (*gainSetCallbackPtr)(uint32_t gainIndB);
+  void (*setGainCallbackPtr)(uint32_t gainIndB);
 
   // Gain rerieval callback pointer to request gain from e client.
-  uint32_t (*gainGetCallbackPtr)(void);
+  uint32_t (*getGainCallbackPtr)(void);
 } me;
 
 static void resetBlankingSystem(void);
@@ -95,9 +95,9 @@ void setHardwareGainInDb(uint32_t gainInDb)
 {
 
   // The client callback will perform hardware-centric processing.
-  if (me.gainSetCallbackPtr != NULL)
+  if (me.setGainCallbackPtr != 0)
   {
-    me.gainSetCallbackPtr(gainInDb);
+    me.setGainCallbackPtr(gainInDb);
   } // if
 
   return;
@@ -120,7 +120,7 @@ void setHardwareGainInDb(uint32_t gainInDb)
 
   Inputs:
 
-    signalIndBFs - The signal in decibels referenced to full scale.
+    signalIndB- The gain in decibels.
 
   Outputs:
 
@@ -135,13 +135,13 @@ uint32_t getHardwareGainInDb(void)
   gainInDb = me.gainInDb;
 
  // The client callback will perform hardware-centric processing.
-  if (me.gainGetCallbackPtr != NULL)
+  if (me.getGainCallbackPtr != 0)
   {
-    gainInDb = me.gainGetCallbackPtr();
+    gainInDb = me.getGainCallbackPtr();
 
-    if (gainInDb > MAX_ADJUSTIBLE_GAIN)
+    if (gainInDb <= MAX_ADJUSTIBLE_GAIN)
     {
-      // Something is amiss.  Don't use the value returned from the callback.
+      // The gain is in range.
       gainInDb = me.gainInDb;
     } // if
   } // if
@@ -203,14 +203,14 @@ void agc_acceptData(int32_t signalIndBFs)
     to full scale.  Full scale represents 0dBFs, otherwise, all other
     values will be negative.
 
-    gainSetCallbackPtr - A pointer to a client callback function that
+    setGainCallbackPtr - A pointer to a client callback function that
     is invoked to request the client application to set the hardware gain.
     A value of NULL is used if the client does not want to register a
     callback.
     If a callback is not registered,the AGC will never modify modify
     the hardware gain.  In other words, rhe system will have no AGC.
 
-    gainGetCallbackPtr - A pointer to a client callback function that
+    getGainCallbackPtr - A pointer to a client callback function that
     is invoked to request the client application to supply the hardware
     gain.
     A value of NULL is used if the client does not want to register a
@@ -225,8 +225,8 @@ void agc_acceptData(int32_t signalIndBFs)
 
 **************************************************************************/
 void agc_init(int32_t operatingPointInDbFs,
-    void (*gainSetCallbackPtr)(uint32_t gainIndB),
-    uint32_t (*gainGetCallbackPtr)(void))
+    void (*setGainCallbackPtr)(uint32_t gainIndB),
+    uint32_t (*getGainCallbackPtr)(void))
 {
 
   // Reference the set point to the antenna input.
@@ -287,8 +287,8 @@ void agc_init(int32_t operatingPointInDbFs,
   //_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
 
   // Register the client request callbacks.
-  me.gainSetCallbackPtr = gainSetCallbackPtr;
-  me.gainGetCallbackPtr = gainGetCallbackPtr;
+  me.setGainCallbackPtr = setGainCallbackPtr;
+  me.getGainCallbackPtr = getGainCallbackPtr;
 
   // This is the top level qualifier for the AGC to run.
   me.initialized = 1;
