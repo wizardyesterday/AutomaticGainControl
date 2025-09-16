@@ -26,7 +26,7 @@ int agc_disable(void);
 int agc_isEnabled(void);
 void agc_acceptData(int32_t signalIndBFs);
 void agc_runHarris(int32_t signalIndBFs);
-void agc_displayInternalInformation(char **displayBuffer);
+void agc_displayInternalInformation(char **displayBufferPtr);
 
 #ifdef __cplusplus
 }

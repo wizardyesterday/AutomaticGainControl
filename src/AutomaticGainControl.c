@@ -868,47 +868,63 @@ void runHarris(int32_t signalIndBFs)
     None.
 
 **************************************************************************/
-void agc_displayInternalInformation(char **displayBuffer)
+void agc_displayInternalInformation(char **displayBufferPtrPtr)
 {
-  char *displayBufferPtr;
+  char *p;;
+  int n;
 
   // Reference caller's display buffer.
-  displayBufferPtr = *displayBuffer;
+  p = *displayBufferPtrPtr;
 
-  fprintf(stderr,"\n--------------------------------------------\n");
-  fprintf(stderr,"AGC Internal Information\n");
-  fprintf(stderr,"--------------------------------------------\n");
+  n = sprintf(p,"\n--------------------------------------------\n");
+  p += n;
+
+  n = sprintf(p,"AGC Internal Information\n");
+  p += n;
+
+  n = sprintf(p,"--------------------------------------------\n");
+  p += n;
 
   if (me.enabled)
   {
-    fprintf(stderr,"AGC Emabled                : Yes\n");
+    n = sprintf(p,"AGC Emabled                : Yes\n");
+    p += n;
   } // if
   else
   {
-    fprintf(stderr,"AGC Emabled                : No\n");
+    n = sprintf(p,"AGC Emabled                : No\n");
+    p += n;
   } // else
 
-  fprintf(stderr,"Blanking Counter           : %u ticks\n",
+  n = sprintf(p,"Blanking Counter           : %u ticks\n",
           me.blankingCounter);
+  p += n;
 
-  fprintf(stderr,"Blanking Limit             : %u ticks\n",
+  n = sprintf(p,"Blanking Limit             : %u ticks\n",
           me.blankingLimit);
 
-  fprintf(stderr,"Lowpass Filter Coefficient : %0.3f\n",
+  n = sprintf(p,"Lowpass Filter Coefficient : %0.3f\n",
           me.alpha);
+  p += n;
 
-  fprintf(stderr,"Deadband                   : %u dB\n",
+  n = sprintf(p,"Deadband                   : %u dB\n",
           me.deadbandInDb);
+  p += n;
 
-  fprintf(stderr,"Operating Point            : %d dBFs\n",
+  n = sprintf(p,"Operating Point            : %d dBFs\n",
           me.operatingPointInDbFs);
+  p += n;
 
- fprintf(stderr,"Gain                       : %u dB\n",
+  n = sprintf(p,"Gain                       : %u dB\n",
           me.gainInDb);
+  p += n;
 
-  fprintf(stderr,"RSSI (After Amp)           : %d dBFs\n",
+  n = sprintf(p,"RSSI (After Amp)           : %d dBFs\n",
           me.normalizedSignalLevelInDbFs);
-  fprintf(stderr,"/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/\n");
+  p += n;
+  *p = 0;
+
+  n = sprintf(p,"/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/\n");
 
   return;
 
