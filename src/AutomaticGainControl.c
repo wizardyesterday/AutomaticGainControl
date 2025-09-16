@@ -134,10 +134,16 @@ uint32_t getHardwareGainInDb(void)
   // Default if we don't have a cient callback function.
   gainInDb = me.gainInDb;
 
-  // The client callback will perform hardware-centric processing.
+ // The client callback will perform hardware-centric processing.
   if (me.gainGetCallbackPtr != NULL)
   {
     gainInDb = me.gainGetCallbackPtr();
+
+    if (gainInDb > MAX_ADJUSTIBLE_GAIN)
+    {
+      // Something is amiss.  Don't use the value returned from the callback.
+      gainInDb = me.gainInDb;
+    } // if
   } // if
  
   return (gainInDb);
