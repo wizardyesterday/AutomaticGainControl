@@ -7,6 +7,7 @@
 
 //static uint32_t gainInDbFs;
 static uint32_t gainInDb;
+static char displayBuffer[65536];
 
 static void setGainCallback(uint32_t gainInDb)
 {
@@ -29,10 +30,18 @@ static uint32_t getGainCallback(void)
 int main(int argc,char **argv)
 {
   uint32_t i;
+  char *displayBufferPtr;
 
+  // Reference the base address of the display buffer.
+  displayBufferPtr = displayBuffer;
+
+  // Some sane value for gain.
   gainInDb = 25;
 
   agc_init(gainInDb,setGainCallback,getGainCallback);
+
+  agc_displayInternalInformation(&displayBufferPtr);
+  printf("%s",displayBuffer);
 
   i = 0;
 

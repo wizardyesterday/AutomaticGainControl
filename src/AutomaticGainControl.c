@@ -97,7 +97,11 @@ void setHardwareGainInDb(uint32_t gainInDb)
   // The client callback will perform hardware-centric processing.
   if (me.setGainCallbackPtr != 0)
   {
+    if (gainInDb <= MAX_ADJUSTIBLE_GAIN)
+    {
+      // The gain is in range.
     me.setGainCallbackPtr(gainInDb);
+   } // if
   } // if
 
   return;
@@ -139,9 +143,9 @@ uint32_t getHardwareGainInDb(void)
   {
     gainInDb = me.getGainCallbackPtr();
 
-    if (gainInDb <= MAX_ADJUSTIBLE_GAIN)
+    if (gainInDb > MAX_ADJUSTIBLE_GAIN)
     {
-      // The gain is in range.
+      // The gain is out of range.
       gainInDb = me.gainInDb;
     } // if
   } // if
@@ -852,54 +856,75 @@ void runHarris(int32_t signalIndBFs)
   Purpose: The purpose of this function is to display information in the
   AGC.
 
-  Calling Sequence: agc_displayInternalInformation()
+  Calling Sequence: agc_displayInternalInformation(&displayBuffwe)
 
   Inputs:
 
-    None.
+    displayBuffer - A pointer to a pointer to a display buffer provided
+    by the caller.
 
   Outputs:
 
     None.
 
 **************************************************************************/
-void agc_displayInternalInformation(void)
+void agc_displayInternalInformation(char **displayBufferPtrPtr)
 {
+  char *p;;
+  int n;
 
-  (stderr,"\n--------------------------------------------\n");
-  fprintf(stderr,"AGC Internal Information\n");
-  fprintf(stderr,"--------------------------------------------\n");
+  // Reference caller's display buffer.
+  p = *displayBufferPtrPtr;
+
+  n = sprintf(p,"\n--------------------------------------------\n");
+  p += n;
+
+  n = sprintf(p,"AGC Internal Information\n");
+  p += n;
+
+  n = sprintf(p,"--------------------------------------------\n");
+  p += n;
 
   if (me.enabled)
   {
-    fprintf(stderr,"AGC Emabled               : Yes\n");
+    n = sprintf(p,"AGC Emabled                : Yes\n");
+    p += n;
   } // if
   else
   {
-    fprintf(stderr,"AGC Emabled               : No\n");
+    n = sprintf(p,"AGC Emabled                : No\n");
+    p += n;
   } // else
 
-  fprintf(stderr,"Blanking Counter            : %u ticks\n",
+  n = sprintf(p,"Blanking Counter           : %u ticks\n",
           me.blankingCounter);
+  p += n;
 
-  fprintf(stderr,"Blanking Limit              : %u ticks\n",
+  n = sprintf(p,"Blanking Limit             : %u ticks\n",
           me.blankingLimit);
 
-  fprintf(stderr,"Lowpass Filter Coefficient: %0.3f\n",
+  n = sprintf(p,"Lowpass Filter Coefficient : %0.3f\n",
           me.alpha);
+  p += n;
 
-  fprintf(stderr,"Deadband                    : %u dB\n",
+  n = sprintf(p,"Deadband                   : %u dB\n",
           me.deadbandInDb);
+  p += n;
 
-  fprintf(stderr,"Operating Point             : %d dBFs\n",
+  n = sprintf(p,"Operating Point            : %d dBFs\n",
           me.operatingPointInDbFs);
+  p += n;
 
- fprintf(stderr,"Gain                         : %u dB\n",
+  n = sprintf(p,"Gain                       : %u dB\n",
           me.gainInDb);
+  p += n;
 
-  fprintf(stderr,"RSSI (After Amp)            : %d dBFs\n",
+  n = sprintf(p,"RSSI (After Amp)           : %d dBFs\n",
           me.normalizedSignalLevelInDbFs);
-  fprintf(stderr,"/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/\n");
+  p += n;
+  *p = 0;
+
+  n = sprintf(p,"/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/\n");
 
   return;
 
