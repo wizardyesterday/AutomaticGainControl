@@ -97,7 +97,11 @@ void setHardwareGainInDb(uint32_t gainInDb)
   // The client callback will perform hardware-centric processing.
   if (me.setGainCallbackPtr != 0)
   {
+    if (gainInDb <= MAX_ADJUSTIBLE_GAIN)
+    {
+      // The gain is in range.
     me.setGainCallbackPtr(gainInDb);
+   } // if
   } // if
 
   return;
