@@ -5,6 +5,10 @@
 #ifndef _AUTOMATICGAINCONTROL_H_
 #define _AUTOMATICGAINCONTROL_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdint.h>
@@ -23,5 +27,9 @@ int agc_isEnabled(void);
 void agc_acceptData(int32_t signalIndBFs);
 void agc_runHarris(int32_t signalIndBFs);
 void agc_displayInternalInformation(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // _AUTOMATICGAINCONTROL_H_
