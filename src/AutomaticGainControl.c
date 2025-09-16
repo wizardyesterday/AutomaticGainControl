@@ -856,52 +856,57 @@ void runHarris(int32_t signalIndBFs)
   Purpose: The purpose of this function is to display information in the
   AGC.
 
-  Calling Sequence: agc_displayInternalInformation()
+  Calling Sequence: agc_displayInternalInformation(&displayBuffwe)
 
   Inputs:
 
-    None.
+    displayBuffer - A pointer to a pointer to a display buffer provided
+    by the caller.
 
   Outputs:
 
     None.
 
 **************************************************************************/
-void agc_displayInternalInformation(void)
+void agc_displayInternalInformation(char **displayBuffer)
 {
+  char *displayBufferPtr;
 
-  (stderr,"\n--------------------------------------------\n");
+  // Reference caller's display buffer.
+  displayBufferPtr = *displayBuffer;
+
+  fprintf(stderr,"\n--------------------------------------------\n");
   fprintf(stderr,"AGC Internal Information\n");
   fprintf(stderr,"--------------------------------------------\n");
 
   if (me.enabled)
   {
-    fprintf(stderr,"AGC Emabled               : Yes\n");
+    fprintf(stderr,"AGC Emabled                : Yes\n");
   } // if
   else
   {
-    fprintf(stderr,"AGC Emabled               : No\n");
+    fprintf(stderr,"AGC Emabled                : No\n");
   } // else
 
-  fprintf(stderr,"Blanking Counter            : %u ticks\n",
+  fprintf(stderr,"Blanking Counter           : %u ticks\n",
           me.blankingCounter);
 
-  fprintf(stderr,"Blanking Limit              : %u ticks\n",
+  fprintf(stderr,"Blanking Limit             : %u ticks\n",
           me.blankingLimit);
 
-  fprintf(stderr,"Lowpass Filter Coefficient: %0.3f\n",
+  fprintf(stderr,"Lowpass Filter Coefficient : %0.3f\n",
           me.alpha);
 
-  fprintf(stderr,"Deadband                    : %u dB\n",
+  fprintf(stderr,"Deadband                   : %u dB\n",
           me.deadbandInDb);
 
-  fprintf(stderr,"Operating Point             : %d dBFs\n",
+  fprintf(stderr,"Operating Point            : %d dBFs\n",
           me.operatingPointInDbFs);
 
- fprintf(stderr,"Gain                         : %u dB\n",
+ fprintf(stderr,"Gain                       : %u dB\n",
           me.gainInDb);
 
-  fprintf(stderr,"RSSI (After Amp)            : %d dBFs\n",
+  fprintf(stderr,"RSSI (After Amp)           : %d dBFs\n",
           me.normalizedSignalLevelInDbFs);
   fprintf(stderr,"/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/\n");
 
