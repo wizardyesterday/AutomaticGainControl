@@ -139,9 +139,9 @@ uint32_t getHardwareGainInDb(void)
   {
     gainInDb = me.getGainCallbackPtr();
 
-    if (gainInDb <= MAX_ADJUSTIBLE_GAIN)
+    if (gainInDb > MAX_ADJUSTIBLE_GAIN)
     {
-      // The gain is in range.
+      // The gain is out of range.
       gainInDb = me.gainInDb;
     } // if
   } // if
