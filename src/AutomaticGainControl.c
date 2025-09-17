@@ -902,6 +902,7 @@ void agc_displayInternalInformation(char **displayBufferPtrPtr)
 
   n = sprintf(p,"Blanking Limit             : %u ticks\n",
           me.blankingLimit);
+  p += n;
 
   n = sprintf(p,"Lowpass Filter Coefficient : %0.3f\n",
           me.alpha);
@@ -919,12 +920,19 @@ void agc_displayInternalInformation(char **displayBufferPtrPtr)
           me.gainInDb);
   p += n;
 
-  n = sprintf(p,"RSSI (After Amp)           : %d dBFs\n",
+  n = sprintf(p,"/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/\n");
+  p += n;
+
+  n = sprintf(p,"RSSI (Before Amp)          : %d dBFs\n",
           me.normalizedSignalLevelInDbFs);
   p += n;
-  *p = 0;
 
   n = sprintf(p,"/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/\n");
+  p += n;
+
+  // Terminate string.
+  *p = 0;
+
 
   return;
 
