@@ -1,8 +1,8 @@
 #!/bin/sh
 #*****************************************************************************
 # This build script creates all of static libraries that can be used for
-# creating RtlSdr apps.  To run this script, type ./buildLibs.sh.
-# Chris G. 08/18/2017
+# creating AGC apps.  To run this script, type ./buildLibs.sh.
+# Chris G. 09/16/2025
 #*****************************************************************************
 sh buildAgcLib.sh
 
