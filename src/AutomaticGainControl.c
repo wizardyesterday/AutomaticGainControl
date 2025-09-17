@@ -854,7 +854,12 @@ void runHarris(int32_t signalIndBFs)
   Name: agc_displayInternalInformation
 
   Purpose: The purpose of this function is to display information in the
-  AGC.
+  AGC.  rather than actually display this information, the formatted
+  indormation is printed to a string so that the client software can
+  display the information is it sees fit.  This way, the AGC focuses on
+  perofming its main function rather than printing information.  in
+  general, this information provides a glass box view of the AGC that is
+  useful for system level debugging.
 
   Calling Sequence: agc_displayInternalInformation(&displayBuffwe)
 
@@ -932,7 +937,6 @@ void agc_displayInternalInformation(char **displayBufferPtrPtr)
 
   // Terminate string.
   *p = 0;
-
 
   return;
 
