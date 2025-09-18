@@ -7,6 +7,7 @@
 #include <sys/time.h>
 
 #include "AutomaticGainControl.h"
+#include "DbfsCalculator.h"
 
 //_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
 // Hardware-dependent defines.
@@ -45,6 +46,9 @@ static struct privateData
   // Filtered gain.
   float filteredGainInDb;
 
+  // The incoming signal magnitude.
+  uint32_t signalMagnitude;
+
   // Signal level before amplification.
   int32_t normalizedSignalLevelInDbFs;
 
@@ -56,8 +60,8 @@ static struct privateData
 } me;
 
 static void resetBlankingSystem(void);
-static void run(int32_t signalIndBFs);
-static void runHarris(int32_t signalIndBFs);
+static void run(uint32_t signalMagnitude);
+static void runHarris(uint32_t signalMagnitude);
 
 //_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
 // Hardware-dependent functions to be filled in.
@@ -175,7 +179,7 @@ uint32_t getHardwareGainInDb(void)
     None.
 
 **************************************************************************/
-void agc_acceptData(int32_t signalIndBFs)
+void agc_acceptData(uint32_t signalMagnitude)
 {
 
   // Allow the AGC to poerate if it is configured.
@@ -184,7 +188,7 @@ void agc_acceptData(int32_t signalIndBFs)
     if (me.enabled)
     {
       // Process the signal.
-      run(signalIndBFs);
+      run(signalMagnitude);
     } // if
   } // if
 
@@ -199,7 +203,10 @@ void agc_acceptData(int32_t signalIndBFs)
   Purpose: The purpose of this function is to initialize the AGC
   subsystem.
 
-  Calling Sequence: agc_init(operatingPointInDbFs)
+  Calling Sequence: initialized = agc_init(operatingPointInDbFs,
+                                           signalMagnitudeBitCount,
+                                           signalMagnitudeBitCount,
+                                           getGainCallbackPtr)
 
   Inputs:
 
@@ -207,6 +214,7 @@ void agc_acceptData(int32_t signalIndBFs)
     to full scale.  Full scale represents 0dBFs, otherwise, all other
     values will be negative.
 
+    signalMagnitudeBitCount - The number of magnitude bits in a signal.
     setGainCallbackPtr - A pointer to a client callback function that
     is invoked to request the client application to set the hardware gain.
     A value of NULL is used if the client does not want to register a
@@ -225,13 +233,18 @@ void agc_acceptData(int32_t signalIndBFs)
 
   Outputs:
 
-    None.
+    initialized - A flag that indicate whether the system was properly
+    initialized, and a value of zero indicates that was not initialized..
 
 **************************************************************************/
-void agc_init(int32_t operatingPointInDbFs,
+int agc_init(int32_t operatingPointInDbFs,
+    uint32_t signalMagnitudeBitCount,
     void (*setGainCallbackPtr)(uint32_t gainIndB),
     uint32_t (*getGainCallbackPtr)(void))
 {
+
+  // Make sure this indicates we're not initialized.
+  me.initialized = 0;
 
   // Reference the set point to the antenna input.
   me.operatingPointInDbFs = operatingPointInDbFs;
@@ -294,10 +307,10 @@ void agc_init(int32_t operatingPointInDbFs,
   me.setGainCallbackPtr = setGainCallbackPtr;
   me.getGainCallbackPtr = getGainCallbackPtr;
 
-  // This is the top level qualifier for the AGC to run.
-  me.initialized = 1;
+  // Initialize the DbFS calculator.
+  me.initialized = dbfs_init(signalMagnitudeBitCount);
 
-  return;
+  return (me.initialized);
  
 } // agc_init
 
@@ -616,7 +629,7 @@ void resetBlankingSystem(void)
 
   Inputs:
 
-    signalIndBFs) - The average magnitude of the IQ data block that
+    signalIMagnitude - The average magnitude of the IQ data block that
     was received in units of dBFs.
 
   Outputs:
@@ -624,7 +637,7 @@ void resetBlankingSystem(void)
     None.
 
 **************************************************************************/
-void run(int32_t signalIndBFs)
+void run(uint32_t signalMagnitude)
 {
   int allowedToRun;
   uint32_t adjustableGain;
@@ -682,7 +695,7 @@ void run(int32_t signalIndBFs)
 
   if (allowedToRun)
   {
-    runHarris(signalIndBFs);
+    runHarris(signalMagnitude);
   } // of
 
   return;
@@ -742,10 +755,14 @@ void run(int32_t signalIndBFs)
     None.
 
 **************************************************************************/
-void runHarris(int32_t signalIndBFs)
+void runHarris(uint32_t signalMagnitude)
 {
   int success;
+  int32_t signalIndBFs;
   int32_t gainError;
+
+  // Convert to decibels referenced to full scale.
+  signalIndBFs = dbfs_convertMagnitudeToDbFs(signalMagnitude);
 
   // Update for display purposes.
   me.normalizedSignalLevelInDbFs = signalIndBFs - me.gainInDb;
@@ -926,6 +943,10 @@ void agc_displayInternalInformation(char **displayBufferPtrPtr)
   p += n;
 
   n = sprintf(p,"/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/\n");
+  p += n;
+
+  n = sprintf(p,"Signal Magnitude           : %u\n",
+          me.signalMagnitude);
   p += n;
 
   n = sprintf(p,"RSSI (Before Amp)          : %d dBFs\n",

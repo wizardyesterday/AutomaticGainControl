@@ -87,7 +87,7 @@ int dbfs_init(uint32_t wordLengthInBits)
   me.dbTable[0] = me.dbTable[1]; 
   //_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
 
-  // This is the top level qualifier for the AGC to run.
+  // This is the top level qualifier for the system to run.
   me.initialized = 1;
 
   return (me.initialized);

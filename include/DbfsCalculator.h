@@ -9,8 +9,17 @@
 #ifndef __DBFSCALCULATOR__
 #define __DBFSCALCULATOR__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
+
 int dbfs_init(uint32_t wordLengthInBits);
-int32_t convertMagnitudeToDbFs(uint32_t signalMagnitude);
+int32_t dbfs_convertMagnitudeToDbFs(uint32_t signalMagnitude);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // __DBFSCALCULATOR__
