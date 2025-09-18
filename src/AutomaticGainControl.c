@@ -168,11 +168,11 @@ uint32_t getHardwareGainInDb(void)
 
   Purpose: The purpose of this function is the interface to run the AGC.
 
-  Calling Sequence: agc_acceptData(int32_t signalIndBFs)
+  Calling Sequence: agc_acceptData(signalMagnitude)
 
   Inputs:
 
-    signalIndBFs - The signal in decibels referenced to full scale.
+    signalMagnitude - The magnitude of the signal.
 
   Outputs:
 
@@ -261,7 +261,7 @@ int agc_init(int32_t operatingPointInDbFs,
   //_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
   // Sometimes, adjustments need to be avoided when a transient in the
   // hardware occurs as a result of a gain adjustment.  In the rtlsdr,
-  // it was initially thought that the tagc_init(int32_t operatingPointInDbFs)ransient was occurring in the
+  // it was initially thought that the transient was occurring in the
   // tuner chip.  This was not the case.  Instead, a transient in the
   // demodulated data was occurring as a result of the IIC repeater
   // being enabled (and/or disabled) in the Realtek 2832U chip.  The
@@ -625,12 +625,11 @@ void resetBlankingSystem(void)
   Purpose: The purpose of this function is to run the selected automatic
   gain control algorithm.
  
-  Calling Sequence: run(int32_t signalIndBFs)
+  Calling Sequence: run(signalMagnitude)
 
   Inputs:
 
-    signalIMagnitude - The average magnitude of the IQ data block that
-    was received in units of dBFs.
+    signalMagnitude - The magnitude of the signal.
 
   Outputs:
 
@@ -744,11 +743,11 @@ void run(uint32_t signalMagnitude)
     g(n+1) = g(n) + [alpha * e(n)]
 
 
-  Calling Sequence: runHarris(int32_t signalIndBFs)
+  Calling Sequence: runHarris(signalIndBFs)
 
   Inputs:
 
-    signalIndBFs - The signal in decibels referenced to full scale.
+    signalMagnitude - The magnitude og the signal.
 
   Outputs:
 
@@ -760,6 +759,9 @@ void runHarris(uint32_t signalMagnitude)
   int success;
   int32_t signalIndBFs;
   int32_t gainError;
+
+  // Update for display purposes.
+  me.signalMagnitude = signalMagnitude;
 
   // Convert to decibels referenced to full scale.
   signalIndBFs = dbfs_convertMagnitudeToDbFs(signalMagnitude);
