@@ -40,7 +40,7 @@ static struct privateData
   Purpose: The purpose of this function is to serve as the contructor for
   an instance of a DbfsCalculator.
 
-  Calling Sequence: dbfs_init(wordLengthInBits)
+  Calling Sequence: initialized = dbfs_init(wordLengthInBits)
 
   Inputs:
 
@@ -48,13 +48,17 @@ static struct privateData
 
  Outputs:
 
-    None.
+    initialized - A flag that indicate whether the system was properly
+    initialized, and a value of zero indicates that was not initialized..
 
 *****************************************************************************/
-void dbfs_init(uint32_t wordLengthInBits)
+int dbfs_init(uint32_t wordLengthInBits)
 {
   uint32_t i;
   float dbLevel;
+
+  // Make sure this indicates we're not initialized.
+  me.initialized = 0;
 
   if (wordLengthInBits > MAX_WORD_LENGTH)
   {
@@ -86,7 +90,7 @@ void dbfs_init(uint32_t wordLengthInBits)
   // This is the top level qualifier for the AGC to run.
   me.initialized = 1;
 
-  return;
+  return (me.initialized);
 
 } // dbfs_init
 

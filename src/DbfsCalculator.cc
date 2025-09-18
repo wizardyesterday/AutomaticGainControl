@@ -22,7 +22,7 @@
   Purpose: The purpose of this function is to serve as the contructor for
   an instance of a DbfsCalculator.
 
-  Calling Sequence: DbfsCalculator(wordLengthInBits)
+  Calling Sequence: initialized = DbfsCalculator(wordLengthInBits)
 
   Inputs:
 
@@ -37,6 +37,9 @@ DbfsCalculator::DbfsCalculator(uint32_t wordLengthInBits)
 {
   uint32_t i;
   float dbLevel;
+
+  // Let's make sure this is zero.
+  me.initialized = 0;
 
   if (wordLengthInBits > MAX_WORD_LENGTH)
   {
@@ -64,6 +67,8 @@ DbfsCalculator::DbfsCalculator(uint32_t wordLengthInBits)
   // Avoid minus infinity.
   dbTable[0] = dbTable[1]; 
   //_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
+
+  return (me.initialized);
 
 } // DbfsCalculator
 

@@ -10,9 +10,7 @@
 #define __DBFSCALCULATOR__
 
 #include <stdint.h>
-
-void dbfs_init(uint32_t wordLengthInBits);
+int dbfs_init(uint32_t wordLengthInBits);
 int32_t convertMagnitudeToDbFs(uint32_t signalMagnitude);
-
 
 #endif // __DBFSCALCULATOR__
