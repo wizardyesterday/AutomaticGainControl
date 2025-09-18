@@ -15,6 +15,7 @@
 #define MAX_ADJUSTIBLE_GAIN (46)
 //_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
 
+
 // All private stuff is bundled in one structure.
 static struct privateData
 {
@@ -62,105 +63,8 @@ static struct privateData
 static void resetBlankingSystem(void);
 static void run(uint32_t signalMagnitude);
 static void runHarris(uint32_t signalMagnitude);
-
-//_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
-// Hardware-dependent functions to be filled in.
-//_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
 static void setHardwareGainInDb(uint32_t gainInDb);
 static uint32_t getHardwareGainInDb(void);
-//_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
-
-//_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
-// Hardware-pecific functions.
-//_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
-
-/**************************************************************************
-
-  Name: setHardwareGainInDb
-
-  Purpose: The purpose of this function is to set the gain of the
-  variable gain amplifier in the hardware.
-  It is the responsibility of the callback function to set the hardware
-  gain since the user application is the entity that actually sets the
-  gain.
-
-  Calling Sequence: setHardwareGainInDb(gainInDb)
-
-  Inputs:
-
-    gain - The gain in decibels.
-
-  Outputs:
-
-    None.
-
-**************************************************************************/
-void setHardwareGainInDb(uint32_t gainInDb)
-{
-
-  // The client callback will perform hardware-centric processing.
-  if (me.setGainCallbackPtr != 0)
-  {
-    if (gainInDb <= MAX_ADJUSTIBLE_GAIN)
-    {
-      // The gain is in range.
-    me.setGainCallbackPtr(gainInDb);
-   } // if
-  } // if
-
-  return;
-
-} // setHardwareGainInDb
-
-/**************************************************************************
-
-  Name: getHardwareGainInDb
-
-  Purpose: The purpose of this function is the interface to run the AGC.
-  It is the responsibility of the developer, that uses this AGC, to 
-  supply a callback function for retrieving te current gain if the client
-  had made any gain changes. In my opioion, the AGC should be disabled if
-  the user wants to manually change the gain.  The only reason this
-  function is needed is to avoid inconnsistancy between the gain that the
-  user manually set and what the AGC automatically set.
-
-  Calling Sequence: gainInDb = getHardwareGainInDb()
-
-  Inputs:
-
-    signalIndB- The gain in decibels.
-
-  Outputs:
-
-    None.
-
-**************************************************************************/
-uint32_t getHardwareGainInDb(void)
-{
-  uint32_t gainInDb;
-
-  // Default if we don't have a cient callback function.
-  gainInDb = me.gainInDb;
-
- // The client callback will perform hardware-centric processing.
-  if (me.getGainCallbackPtr != 0)
-  {
-    gainInDb = me.getGainCallbackPtr();
-
-    if (gainInDb > MAX_ADJUSTIBLE_GAIN)
-    {
-      // The gain is out of range.
-      gainInDb = me.gainInDb;
-    } // if
-  } // if
- 
-  return (gainInDb);
-
-} // getHardwareGainInDb
-
-//_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
-// End of hardware-specific functions
-//_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
 
 /**************************************************************************
 
@@ -408,7 +312,7 @@ int agc_setBlankingLimit(uint32_t blankingLimit)
 
 /**************************************************************************
 
-  Name: setOperatingPoint
+  Name: agc_setOperatingPoint
 
   Purpose: The purpose of this function is to set the operating point
   of the AGC.
@@ -586,6 +490,108 @@ int agc_isEnabled(void)
   return (me.enabled);
 
 } // agc_isEnabled
+
+/**************************************************************************
+
+  Name: agc_displayInternalInformation
+
+  Purpose: The purpose of this function is to display information in the
+  AGC.  rather than actually display this information, the formatted
+  indormation is printed to a string so that the client software can
+  display the information is it sees fit.  This way, the AGC focuses on
+  perofming its main function rather than printing information.  in
+  general, this information provides a glass box view of the AGC that is
+  useful for system level debugging.
+
+  Calling Sequence: agc_displayInternalInformation(&displayBuffwe)
+
+  Inputs:
+
+    displayBuffer - A pointer to a pointer to a display buffer provided
+    by the caller.
+
+  Outputs:
+
+    None.
+
+**************************************************************************/
+void agc_displayInternalInformation(char **displayBufferPtrPtr)
+{
+  char *p;;
+  int n;
+
+  // Reference caller's display buffer.
+  p = *displayBufferPtrPtr;
+
+  n = sprintf(p,"\n--------------------------------------------\n");
+  p += n;
+
+  n = sprintf(p,"AGC Internal Information\n");
+  p += n;
+
+  n = sprintf(p,"--------------------------------------------\n");
+  p += n;
+
+  if (me.enabled)
+  {
+    n = sprintf(p,"AGC Emabled                : Yes\n");
+    p += n;
+  } // if
+  else
+  {
+    n = sprintf(p,"AGC Emabled                : No\n");
+    p += n;
+  } // else
+
+  n = sprintf(p,"Blanking Counter           : %u ticks\n",
+          me.blankingCounter);
+  p += n;
+
+  n = sprintf(p,"Blanking Limit             : %u ticks\n",
+          me.blankingLimit);
+  p += n;
+
+  n = sprintf(p,"Lowpass Filter Coefficient : %0.3f\n",
+          me.alpha);
+  p += n;
+
+  n = sprintf(p,"Deadband                   : %u dB\n",
+          me.deadbandInDb);
+  p += n;
+
+  n = sprintf(p,"Operating Point            : %d dBFs\n",
+          me.operatingPointInDbFs);
+  p += n;
+
+  n = sprintf(p,"Gain                       : %u dB\n",
+          me.gainInDb);
+  p += n;
+
+  n = sprintf(p,"/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/\n");
+  p += n;
+
+  n = sprintf(p,"Signal Magnitude           : %u\n",
+          me.signalMagnitude);
+  p += n;
+
+  n = sprintf(p,"RSSI (Before Amp)          : %d dBFs\n",
+          me.normalizedSignalLevelInDbFs);
+  p += n;
+
+  n = sprintf(p,"/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/\n");
+  p += n;
+
+  // Terminate string.
+  *p = 0;
+
+  return;
+
+} // agc_displayInternalInformation
+
+
+//_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
+// Static functions.
+//_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
 
 /**************************************************************************
 
@@ -867,101 +873,91 @@ void runHarris(uint32_t signalMagnitude)
 
 } // runHarris
 
-
 /**************************************************************************
 
-  Name: agc_displayInternalInformation
+  Name: setHardwareGainInDb
 
-  Purpose: The purpose of this function is to display information in the
-  AGC.  rather than actually display this information, the formatted
-  indormation is printed to a string so that the client software can
-  display the information is it sees fit.  This way, the AGC focuses on
-  perofming its main function rather than printing information.  in
-  general, this information provides a glass box view of the AGC that is
-  useful for system level debugging.
+  Purpose: The purpose of this function is to set the gain of the
+  variable gain amplifier in the hardware.
+  It is the responsibility of the callback function to set the hardware
+  gain since the user application is the entity that actually sets the
+  gain.
 
-  Calling Sequence: agc_displayInternalInformation(&displayBuffwe)
+  Calling Sequence: setHardwareGainInDb(gainInDb)
 
   Inputs:
 
-    displayBuffer - A pointer to a pointer to a display buffer provided
-    by the caller.
+    gain - The gain in decibels.
 
   Outputs:
 
     None.
 
 **************************************************************************/
-void agc_displayInternalInformation(char **displayBufferPtrPtr)
+void setHardwareGainInDb(uint32_t gainInDb)
 {
-  char *p;;
-  int n;
 
-  // Reference caller's display buffer.
-  p = *displayBufferPtrPtr;
-
-  n = sprintf(p,"\n--------------------------------------------\n");
-  p += n;
-
-  n = sprintf(p,"AGC Internal Information\n");
-  p += n;
-
-  n = sprintf(p,"--------------------------------------------\n");
-  p += n;
-
-  if (me.enabled)
+  // The client callback will perform hardware-centric processing.
+  if (me.setGainCallbackPtr != 0)
   {
-    n = sprintf(p,"AGC Emabled                : Yes\n");
-    p += n;
+    if (gainInDb <= MAX_ADJUSTIBLE_GAIN)
+    {
+      // The gain is in range.
+    me.setGainCallbackPtr(gainInDb);
+   } // if
   } // if
-  else
-  {
-    n = sprintf(p,"AGC Emabled                : No\n");
-    p += n;
-  } // else
-
-  n = sprintf(p,"Blanking Counter           : %u ticks\n",
-          me.blankingCounter);
-  p += n;
-
-  n = sprintf(p,"Blanking Limit             : %u ticks\n",
-          me.blankingLimit);
-  p += n;
-
-  n = sprintf(p,"Lowpass Filter Coefficient : %0.3f\n",
-          me.alpha);
-  p += n;
-
-  n = sprintf(p,"Deadband                   : %u dB\n",
-          me.deadbandInDb);
-  p += n;
-
-  n = sprintf(p,"Operating Point            : %d dBFs\n",
-          me.operatingPointInDbFs);
-  p += n;
-
-  n = sprintf(p,"Gain                       : %u dB\n",
-          me.gainInDb);
-  p += n;
-
-  n = sprintf(p,"/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/\n");
-  p += n;
-
-  n = sprintf(p,"Signal Magnitude           : %u\n",
-          me.signalMagnitude);
-  p += n;
-
-  n = sprintf(p,"RSSI (Before Amp)          : %d dBFs\n",
-          me.normalizedSignalLevelInDbFs);
-  p += n;
-
-  n = sprintf(p,"/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/\n");
-  p += n;
-
-  // Terminate string.
-  *p = 0;
 
   return;
 
-} // agc_displayInternalInformation
+} // setHardwareGainInDb
+
+/**************************************************************************
+
+  Name: getHardwareGainInDb
+
+  Purpose: The purpose of this function is the interface to run the AGC.
+  It is the responsibility of the developer, that uses this AGC, to 
+  supply a callback function for retrieving te current gain if the client
+  had made any gain changes. In my opioion, the AGC should be disabled if
+  the user wants to manually change the gain.  The only reason this
+  function is needed is to avoid inconnsistancy between the gain that the
+  user manually set and what the AGC automatically set.
+
+  Calling Sequence: gainInDb = getHardwareGainInDb()
+
+  Inputs:
+
+    signalIndB- The gain in decibels.
+
+  Outputs:
+
+    None.
+
+**************************************************************************/
+uint32_t getHardwareGainInDb(void)
+{
+  uint32_t gainInDb;
+
+  // Default if we don't have a cient callback function.
+  gainInDb = me.gainInDb;
+
+ // The client callback will perform hardware-centric processing.
+  if (me.getGainCallbackPtr != 0)
+  {
+    gainInDb = me.getGainCallbackPtr();
+
+    if (gainInDb > MAX_ADJUSTIBLE_GAIN)
+    {
+      // The gain is out of range.
+      gainInDb = me.gainInDb;
+    } // if
+  } // if
+ 
+  return (gainInDb);
+
+} // getHardwareGainInDb
+
+//_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
+// End of static functions
+//_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
 
