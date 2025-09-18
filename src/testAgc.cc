@@ -5,7 +5,6 @@
 
 #include "AutomaticGainControl.h"
 
-//static uint32_t gainInDbFs;
 static uint32_t gainInDb;
 
 static void setGainCallback(uint32_t gainInDb)
@@ -29,6 +28,7 @@ static uint32_t getGainCallback(void)
 int main(int argc,char **argv)
 {
   uint32_t i;
+  uint32_t numberOfBits;
   char *displayBufferPtr;
 
   // Allocate memory.
@@ -37,7 +37,10 @@ int main(int argc,char **argv)
   // Some sane value for gain.
   gainInDb = 25;
 
-  agc_init(gainInDb,setGainCallback,getGainCallback);
+  // Assume 7 bits of magnitude for a signal.
+  numberOfBits = 7;
+
+  agc_init(gainInDb,numberOfBits,setGainCallback,getGainCallback);
 
   agc_displayInternalInformation(&displayBufferPtr);
   printf("%s",displayBufferPtr);

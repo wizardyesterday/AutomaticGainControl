@@ -13,9 +13,10 @@ extern "C" {
 #include <unistd.h>
 #include <stdint.h>
 
- void agc_init(int32_t operatingPointInDbFs,
- void (*gainSetCallbackPtr)(uint32_t gainIndB),
- uint32_t (*gainGetCallbackPtr)(void));
+int agc_init(int32_t operatingPointInDbFs,
+    uint32_t signalMagnitudeBitCount,
+    void (*setGainCallbackPtr)(uint32_t gainIndB),
+    uint32_t (*getGainCallbackPtr)(void));
 
 void agc_setOperatingPoint(int32_t operatingPointInDbFs);
 int agc_setAgcFilterCoefficient(float coefficient);
@@ -24,8 +25,8 @@ int agc_setBlankingLimit(uint32_t blankingLimit);
 int agc_enable(void);
 int agc_disable(void);
 int agc_isEnabled(void);
-void agc_acceptData(int32_t signalIndBFs);
-void agc_runHarris(int32_t signalIndBFs);
+void agc_acceptData(uint32_t signalMagnitude);
+void agc_runHarris(uint32_t signalMagnitude);
 void agc_displayInternalInformation(char **displayBufferPtrPtr);
 
 #ifdef __cplusplus

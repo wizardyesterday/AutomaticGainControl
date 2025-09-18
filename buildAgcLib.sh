@@ -8,6 +8,7 @@ Compile="gcc -c -g  -O0 -Iinclude"
 
 # First compile the files of interest.
 $Compile src/AutomaticGainControl.c
+$Compile src/dbfsCalculator.c
 
 # Create the archive.
 ar rcs lib/libAutomaticGainControl.a *.o
