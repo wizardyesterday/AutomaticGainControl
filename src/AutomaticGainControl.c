@@ -7,7 +7,7 @@
 #include <sys/time.h>
 
 #include "AutomaticGainControl.h"
-#include "DbfsCalculator.h"
+#include "dbfsCalculator.h"
 
 //_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
 // Hardware-dependent defines.

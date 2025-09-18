@@ -1,5 +1,5 @@
 //**************************************************************************
-// file name: DbfsCalculator.c
+// file name: dbfsCalculator.c
 //**************************************************************************
 
 #include <stdio.h>
@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include "DbfsCalculator.h"
+#include "dbfsCalculator.h"
 
 // Allow a maximum of 31 bit wordlength.
 #define MAX_WORD_LENGTH (31)
