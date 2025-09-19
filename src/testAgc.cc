@@ -82,7 +82,7 @@ static uint32_t getGainCallback(void)
   // Hardware-specific computations are performed here.
   //_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
   // Retrieve the amplifier gain.
-  // Convert to dBFS.
+  // Convert to dB.
   // gainInDb = converted gain.
   //_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
 
