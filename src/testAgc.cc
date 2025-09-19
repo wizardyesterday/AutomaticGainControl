@@ -104,12 +104,12 @@ int main(int argc,char **argv)
   displayBufferPtr = new char[65536];
 
   // Some sane value for gain.
-  operatingPointInDbFs = 25;
+  operatingPointInDbFs = -12;
 
   // Assume 7 bits of magnitude for a signal.
   numberOfBits = 7;
 
-  agc_init(gainInDb,numberOfBits,setGainCallback,getGainCallback);
+  agc_init(operatingPointInDbFs,numberOfBits,setGainCallback,getGainCallback);
 
   agc_displayInternalInformation(&displayBufferPtr);
   printf("%s",displayBufferPtr);
