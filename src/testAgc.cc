@@ -82,7 +82,7 @@ static uint32_t getGainCallback(void)
   // Hardware-specific computations are performed here.
   //_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
   // Retrieve the amplifier gain.
-  // Convert to dB.
+  // Convert to dBFS.
   // gainInDb = converted gain.
   //_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
 
@@ -97,13 +97,14 @@ int main(int argc,char **argv)
 {
   uint32_t i;
   uint32_t numberOfBits;
+  int32_t operatingPointInDbFs;
   char *displayBufferPtr;
 
   // Allocate memory.
   displayBufferPtr = new char[65536];
 
   // Some sane value for gain.
-  gainInDb = 25;
+  operatingPointInDbFs = 25;
 
   // Assume 7 bits of magnitude for a signal.
   numberOfBits = 7;
