@@ -30,16 +30,23 @@ semantics and usage of each functio usage is described below.
 
 3.6 int agc_enable(void)
 
+This function enables the AGC.  The receiver should be started, and time
+should be allowed for it to stabilize before enabling the AGC.
+
 
 3.7 int agc_disable(void)
+This function disables the AGC.  This allows the user to manually control
+the gain of the receiver.
 
 3.8 int agc_isEnabled(void)
 
+This function allows the AGC enable state to be queried.  A value of 1
+indicates that the AGC is enabled, and a value of 0 indicates that the AGC
+is disabled.
+
 3.9 void agc_acceptData(uint32_t signalMagnitude)
 
-3.10void agc_runHarris(uint32_t signalMagnitude)
-
-3.11 void agc_displayInternalInformation(char **displayBufferPtrPtr)
+3.10 void agc_displayInternalInformation(char **displayBufferPtrPtr)
 
 
 
