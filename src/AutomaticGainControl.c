@@ -119,6 +119,11 @@ void agc_acceptData(uint32_t signalMagnitude)
     values will be negative.
 
     signalMagnitudeBitCount - The number of magnitude bits in a signal.
+    This is necssary to map a signal magnitude into the log domain so
+    the AGC algorithm can perform all computations in a decibel
+    scale (specifically dBFS).  It follows that linear system theory
+    can be applied.
+
     setGainCallbackPtr - A pointer to a client callback function that
     is invoked to request the client application to set the hardware gain.
     A value of NULL is used if the client does not want to register a
