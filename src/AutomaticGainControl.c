@@ -91,8 +91,11 @@ void agc_acceptData(uint32_t signalMagnitude)
   {
     if (me.enabled)
     {
-      // Process the signal.
-      run(signalMagnitude);
+      if (signalMagnitude != me.signalMagnitude)
+      {
+        // Process the signal if it has changed.
+        run(signalMagnitude);
+      } // if
     } // if
   } // if
 
