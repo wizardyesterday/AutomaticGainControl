@@ -7,6 +7,10 @@ of a digital radio, the magnitude of signal samples presented to the AGC.
 Typically, an average magnitude of a block of data is used to perform a
 smoothing action to the input provided to the AGC.
 
+An attempt was made to make an accurate implementation of what was
+described in the paper (by Fred Harris and Gregory Smith) in the doc/papers/
+directory.  For details on design and implementation, refer to that paper.
+
 1.0 System Requrements
 
 The AGC software has been successfully run on a 300MHz Pentium II computer,
