@@ -3,23 +3,61 @@
 2.0 Directory Structure and File Descriptions
 The directory structure and the descriptions are provided below.
 
-2.1 doc/papers
+2.1 AutomatricGainControl/
+This top level directory contains the build scripts and all of the
+subdirectories.
+
+2.1.1 LICENSE
+
+2.1.2 README.txt
+This file.
+
+2.1.3 buildLibs.sh
+This script builds all library code.
+
+2.1.4 buildAgcLib.sh
+This script builds The AGC library code.
+
+2.1.5 buildTestAgc.sh
+This scruot builds the executable code *after* the libraries are built.
+
+2.1.6 doc/papers
 This directory contains useful papers related to AGC's.
 
-2.1.1 agc_paper__10700.pdf
+2.1.1.8 agc_paper__10700.pdf
 This paper, written by Fred Harris and Grgory Smith, describes the
 design and implementation of a micropeocessor-controled AGC for a digital
 receiver.  My AGC is an implementation of that described in the paper.
 
-2.2 test/RtlSdrWork_agc
+2.2 test/
+This directory contains the header files listed below.
+
+2.2.1 RtlSdrWork_agc/
+This directory contains all filess necessary to build a version of my
+radio  diags used to validate operation of this AGC.
+
 
 2.3 include/
+This directory contains the header files listed below.
+
+2.3.1 AutomaticGainControl.h
+
+.3.2 dbfsCalculator.h
 
 2.4 src/
+This directory contains the header files listed below.
 
-2.5 li/
+2.4.1AutomaticGainControl.c
 
+2.4.2dbfsCalculator.c
+
+2.4.3testAgc.cc
+
+2.5 lib/
+This diectory contains the AGC library.
+c
 2.6 bin/
+This directory contains the executable code.
 
 3.0 API Description
 The Application Progamming Interface (API) and a quick description of the
