@@ -173,6 +173,49 @@ string.  The buffer can be displayed via printf("%s",theBuffer).
 
 4.0 How to Build
 
+4.1 Building the Example Code.
+To build the teat software using testAgc.cc, perform the steps illustrated
+below.
+
+1. Navigate to the AutomaticGainControl directory
+2. Type sh buildLibs.sh.
+3. Type sh buildTestAgc.
+
+You will now have an executable in the bin directory called testAgc.
+The program does nothing other than initialize the AGC and display AGC
+configuration and state information.  The file, testAgc.cc shows you how
+to define your *static* callbacks which would normally reside in your
+application code.
+I used tis progrm to unit-test the AGC code using a debugger.  You can add
+bells and whistles to the test program so that you cann get a feel of the
+AGC code.
+Test program output is illustrated below.
+
+--------------------------------------------
+AGC Internal Information
+--------------------------------------------
+AGC Emabled                : No
+Blanking Counter           : 0 ticks
+Blanking Limit             : 1 ticks
+Lowpass Filter Coefficient : 0.800
+Deadband                   : 1 dB
+Operating Point            : -12 dBFs
+Gain                       : 24 dB
+/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
+Signal Magnitude           : 0
+RSSI (Before Amp)          : -24 dBFs
+/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
+
+
+
+4.2 Integrating the AGC Code into Your Application
+
+
+5.0 
+
+
+4.2 Integrating the AGC Code into Your Application
+
 
 5.0 Closing Remarks.
 
