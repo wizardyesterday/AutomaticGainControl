@@ -211,12 +211,6 @@ RSSI (Before Amp)          : -24 dBFs
 4.2 Integrating the AGC Code into Your Application
 
 
-5.0 
-
-
-4.2 Integrating the AGC Code into Your Application
-
-
 5.0 Closing Remarks.
 
 
