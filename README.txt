@@ -227,8 +227,8 @@ whatever amplifier you going to control.  I recommend controlling the
 amplifier that drives the A/D converter in your receiver.  Additionally,
 save the amplifier gain in a variable: for example, call it gainValue.
 
-5. Provide a *static& callback function that returns the gain, in decibels,
-of the amplifier that is bbeing controlled.  Let it return yhe  example
+5. Provide a *static* callback function that returns the gain, in decibels,
+of the amplifier that is bbeing controlled.  Let it return the  example
 variable, gainValue, from the above example.
 
 4.2.2 Choice 2
@@ -247,8 +247,8 @@ whatever amplifier you going to control.  I recommend controlling the
 amplifier that drives the A/D converter in your receiver.  Additionally,
 save the amplifier gain in a variable: for example, call it gainValue.
 
-5. Provide a *static& callback function that returns the gain, in decibels,
-oamplifier that is bbeing controlled.  Let it return yhe  example
+5. Provide a *static* callback function that returns the gain, in decibels,
+oamplifier that is being controlled.  Let it return the  example
 variable, gainValue, from the above example.
 
 
