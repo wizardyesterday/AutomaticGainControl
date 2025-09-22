@@ -1,4 +1,19 @@
-1.0 Inttroduction
+0.0 Introduction
+
+An Automatic Gain Control (AGC) is a feeback system that adjusts the
+gain of a variable-gain amplifier (VGA) to maintain an operating point
+such as a voltage magnitude level, current magnitude level, or in the case
+of a digital radio, the magnitude of signal samples presented to the AGC.
+Typically, an average magnitude of a block of data is used to perform a
+smoothing action to the input provided to the AGC.
+
+1.0 System Requrements
+
+The AGC software has been successfully run on a 300MHz Pentium II computer,
+and on a BeagleBone Black with a 1GHg single-core ARM v7 processor.
+
+The toolchain used for the Pentium II computer is gcc version 3.3 with
+the associated linker.
 
 2.0 Directory Structure and File Descriptions
 The directory structure and the descriptions are provided below.
