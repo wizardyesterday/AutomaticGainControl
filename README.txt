@@ -229,7 +229,7 @@ save the amplifier gain in a variable: for example, call it gainValue.
 
 5. Provide a *static& callback function that returns the gain, in decibels,
 of the amplifier that is bbeing controlled.  Let it return yhe  example
-variabe, gainValue, from the above example.
+variable, gainValue, from the above example.
 
 4.2.2 Choice 2
 
@@ -249,7 +249,7 @@ save the amplifier gain in a variable: for example, call it gainValue.
 
 5. Provide a *static& callback function that returns the gain, in decibels,
 of the amplifier that is bbeing controlled.  Let it return yhe  example
-variabe, gainValue, from the above example.
+variable, gainValue, from the above example.
 
 
 5.0 Closing Remarks.
