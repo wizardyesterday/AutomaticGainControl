@@ -55,7 +55,7 @@ This file is used internally by the AGC.
 2.4 src/
 This directory contains the header files listed below.
 
-2.4.1AutomaticGainControl.c
+2.4.1 AutomaticGainControl.c
 
 2.4.2 dbfsCalculator.c
 This file is used internally by the AGC.
@@ -172,6 +172,7 @@ string.  The buffer can be displayed via printf("%s",theBuffer).
 
 
 4.0 How to Build
+
 
 5.0 Closing Remarks.
 
