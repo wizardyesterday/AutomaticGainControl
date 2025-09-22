@@ -19,6 +19,13 @@ and on a BeagleBone Black with a 1GHg single-core ARM v7 processor.
 The toolchain used for the Pentium II computer is gcc version 3.3 with
 the associated linker.
 
+The software has been built and tested in a Linux environment, and I don't
+plan to support Microsoft Windows systems.  I welcome oers to add the
+appropriate macros to support Microsoft Windows.
+
+This software *should* be able to build and execute on 64-bit processer
+architectures.
+
 2.0 Directory Structure and File Descriptions
 The directory structure and the descriptions are provided below.
 
@@ -273,4 +280,46 @@ variable, gainValue, from the above example.
 
 5.0 Closing Remarks.
 
+This document has provided a description of an implementation of an AGG
+algorithm tjat was wrottem in the C programming language.  The advanage
+to using C is that the algorithm can be used for both C programs as well
+as C++.
 
+My motivation for creating an AGC was to give people the ability to run
+SDR software on radios which conain A/D converters that produce 8-bit
+output samples.  With a 48dB (theoretically, ignoring implementation loss),
+you don't have much to work with in a radio environment wit radically
+different signal strengths.  With an amplifier, whose output drives an A/D
+converter, on the rtl-sdr, when I listened to aircraft frequencies, I
+would hear strong tones when a strong sixnal would be received.  The
+solution was to reduce the LNA and mixer gains. I asked myself, why would I
+want to reducw front-end sensitivity when signal overload was not occuring
+at the variable gain amplifer input?  It was A/D converter overload!  with
+an AGC, the user can establish a safe operating point that allows enough
+headroom to avoid overload when a strong signal arrives.  When the signal
+goes away, the gain is increased so that you can hear weak signals.
+
+I have used an AGC on both the HackRF (which is not deaf, by the way), and
+the rtl-sdr (which is more sensitive than the HackRF on some frequency
+ranges).
+
+Even chips like the Analog Devices AD9361, provide hardware AGC functionality,
+and that device produces 12-bit samples.
+
+I have worked so long with radios, that I have become biased towards
+radios having an AGC.  You get lots of bang for the buck.
+
+It is my hope that some people, at the very least, look at my code.  They
+might actually find it to be useful.
+
+I think that's all I have to say.
+
+I can be reached on the Libera IRC server in the ##rtlsdr channel, and
+I will always answer any questions, and I will always help people out
+in integrating this code into their applications.
+
+And remember: this AGC is hardware-agnodtic!
+
+Take care,
+Chris
+IRC nick: wizardyesterday
