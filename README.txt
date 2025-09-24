@@ -129,7 +129,7 @@ point (commonly called the set point).
 
 3.3 int agc_setAgcFilterCoefficient(float coefficient)
 
-This function sets the filter coefficient of the AGC.  The "filtercoefficien"
+This function sets the filter coefficient of the AGC.  The "coefficient"
 parameter determines how quickly the AGC algorithm will converge to the
 operatingpoint.  Valid values are 0 < coefficient < 1. Smaller values result
  in the AGC converging more slowly, and larger values result in more rapid
@@ -225,7 +225,7 @@ RSSI (Before Amp)          : -24 dBFs
 
 
 4.2 Integrating the AGC Code into Your Application
-To integrate the AGC code into your application code yu have a few choices
+To integrate the AGC code into your application code you have a few choices
 which I'll discuss.
 
 4.2.1 Choice 1
@@ -247,7 +247,7 @@ variable, gainValue, from the above example.
 
 4.2.2 Choice 2
 
-1. Copy files, AutomaticGainControl.h dbfsCalucater.h in an include directory
+1. Copy files, AutomaticGainControl.h dbfsCalculator.h in an include directory
 of your choice.
 
 2. Copy files, AutomaticGainControl.c and dbfsCalculator.c  into a source
@@ -266,9 +266,9 @@ oamplifier that is being controlled.  Let it return the  example
 variable, gainValue, from the above example.
 
 5.0 Example Program
-An example program is provided in ser/testAgc.cc.  The program illustrates
+An example program is provided in src/testAgc.cc.  The program illustrates
 how to initialize the AGC software with some contrived values, it explains
-how to invoke the  AGC usng a contrived aignal magnitude, and an explaination
+how to invoke the  AGC usng a contrived aignal magnitude, and an explanation
 of when the AGC should actually be operated at run time.
 
 6.0 Closing Remarks.
@@ -286,15 +286,14 @@ different signal strengths.  With an amplifier, whose output drives an A/D
 converter, on the rtl-sdr, when I listened to aircraft frequencies, I
 would hear strong tones when a strong sixnal would be received.  The
 solution was to reduce the LNA and mixer gains. I asked myself, why would I
-want to reducw front-end sensitivity when signal overload was not occuring
-at the variable gain amplifer input?  It was A/D converter overload!  with
+want to reduce front-end sensitivity when signal overload was not occuring
+at the variable gain amplifer input?  It was A/D converter overload!  With
 an AGC, the user can establish a safe operating point that allows enough
 headroom to avoid overload when a strong signal arrives.  When the signal
 goes away, the gain is increased so that you can hear weak signals.
 
-I have used an AGC on both the HackRF (which is not deaf, by the way), and
-the rtl-sdr (which is more sensitive than the HackRF on some frequency
-ranges).
+I have used an AGC on both the HackRF, and the rtl-sdr.  It has worked
+well on both radios.
 
 Even chips like the Analog Devices AD9361, provide hardware AGC functionality,
 and that device produces 12-bit samples.
@@ -305,7 +304,7 @@ radios having an AGC.  You get lots of bang for the buck.
 It is my hope that some people, at the very least, look at my code.  They
 might actually find it to be useful.
 
-There are two points that I shouls mention.
+There are two points that I shouls mention.:
 1. Do not enable the AGC until the receiver is started/enabled and the
 receiver has stabilized.
 2. The AGC can be disabled if it is desired to manually adjust the amplifier
