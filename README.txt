@@ -277,18 +277,23 @@ save the amplifier gain in a variable: for example, call it gainValue.
 oamplifier that is being controlled.  Let it return the  example
 variable, gainValue, from the above example.
 
+5.0 Example Program
+An example program is provided in ser/testAgc.cc.  The program illustrates
+how to initialize the AGC software with some contrived values, it explains
+how to invoke the  AGC usng a contrived aignal magnitude, and an explaination
+of when the AGC should actually be operated at run time.
 
-5.0 Closing Remarks.
+6.0 Closing Remarks.
 
 This document has provided a description of an implementation of an AGG
-algorithm tjat was wrottem in the C programming language.  The advanage
+algorithm that was wrottem in the C programming language.  The advanage
 to using C is that the algorithm can be used for both C programs as well
 as C++.
 
 My motivation for creating an AGC was to give people the ability to run
 SDR software on radios which conain A/D converters that produce 8-bit
 output samples.  With a 48dB (theoretically, ignoring implementation loss),
-you don't have much to work with in a radio environment wit radically
+you don't have much to work with in a radio environment with radically
 different signal strengths.  With an amplifier, whose output drives an A/D
 converter, on the rtl-sdr, when I listened to aircraft frequencies, I
 would hear strong tones when a strong sixnal would be received.  The
@@ -312,7 +317,11 @@ radios having an AGC.  You get lots of bang for the buck.
 It is my hope that some people, at the very least, look at my code.  They
 might actually find it to be useful.
 
-I think that's all I have to say.
+There are two points that I shouls mention.
+1. Do not enable the AGC until the receiver is started/enabled and the
+receiver has stabilized.
+2. The AGC can be disabled if it is desired to manually adjust the amplifier
+gain.
 
 I can be reached on the Libera IRC server in the ##rtlsdr channel, and
 I will always answer any questions, and I will always help people out
