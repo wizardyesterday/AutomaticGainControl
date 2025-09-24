@@ -1,3 +1,10 @@
+//*******************************************************************
+// File: testAgc.c
+// This program provides example code for initialization and
+// operation of the automatic gain control.  Feel free to modify
+// the program to suit your needs.
+//*******************************************************************
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -106,13 +113,42 @@ int main(int argc,char **argv)
   // Some sane value for gain.
   operatingPointInDbFs = -12;
 
-  // Assume 7 bits of magnitude for a signal.
+  // 8-bit sample size with 1 sign bit and 7 magnitude bits, as is the
+  // case for an 8-bit 2's complement value.
   numberOfBits = 7;
 
-  agc_init(operatingPointInDbFs,numberOfBits,setGainCallback,getGainCallback);
+  // Initalize the AGC with an operating point of -8dBFs.
+  agc_init(-8,numberOfBits,setGainCallback,getGainCallback);
 
+  // Set the convergence contstant.
+  agc_setAgcFilterCoefficient(0.7);
+
+  // Set deadband of +-1dB.
+  agc_setDeadband(1);
+
+  // Set blank timeout of 2 invocations.  This will mean that the AGC
+  // will be run on every invocation.
+  agc_setBlankingLimit(1);
+
+  // Enable the AGC.  his would be done elsewhere by the user.
+  agc_enable();
+
+  // Let's display the AGC parameters.
   agc_displayInternalInformation(&displayBufferPtr);
-  printf("%s",displayBufferPtr);
+  printf("%s\n\n",displayBufferPtr);
+
+  // Enable the receiver and wait 3 seconds (contrived) to stabilize.
+  // Don't use the sleep() function in an actual application.
+  sleep(2);
+
+  // The receiver is now stable, so let's send it a signal magnitufe.
+  agc_acceptData(80);
+
+  // Display the operational AGC parameters.
+  // NOte that on a live system, you will sometimes see a nonzero
+  // Blanking timer calue, depending upon the signal environment.
+  agc_displayInternalInformation(&displayBufferPtr);
+  printf("%s\n\n",displayBufferPtr);
 
   i = 0;
 
