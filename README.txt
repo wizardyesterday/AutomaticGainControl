@@ -60,40 +60,30 @@ This paper, written by Fred Harris and Grgory Smith, describes the
 design and implementation of a micropeocessor-controled AGC for a digital
 receiver.  My AGC is an implementation of that described in the paper.
 
-2.2 test/
+2.2 include/
 This directory contains the header files listed below.
 
-2.2.1 RtlSdrWork_agc/
-This directory contains all filess necessary to build a version of my
-radio  diags used to validate operation of this AGC.  The software in
-this directory is not really needed to integrate the AGC into your system,
-however, it provides an actual example of a working system that uses this
-AGC.
+2.2.1 AutomaticGainControl.h
 
-2.3 include/
-This directory contains the header files listed below.
-
-2.3.1 AutomaticGainControl.h
-
-2.3.2 dbfsCalculator.h
+2.2.2 dbfsCalculator.h
 This file is used internally by the AGC.
 
-2.4 src/
+2.3 src/
 This directory contains the header files listed below.
 
-2.4.1 AutomaticGainControl.c
+2.3.1 AutomaticGainControl.c
 
-2.4.2 dbfsCalculator.c
+2.3.2 dbfsCalculator.c
 This file is used internally by the AGC.
 
-2.4.3 testAgc.cc
+2.3.3 testAgc.cc
 This program is compiled and used for unit testing. It is not used when
 building an application.
 
-2.5 lib/
+2.4 lib/
 This diectory contains the AGC library.
-c
-2.6 bin/
+
+2.5 bin/
 This directory contains the executable code.
 
 3.0 API Description
@@ -243,17 +233,15 @@ which I'll discuss.
 1. Copy the contents of the AutomaticGainControl directory into your
 build directory.
 
-2. remove the test/ directory and its contents.
-
-3. Set up your build environment to reference the files, AutomaticGainContro.h
+2. Set up your build environment to reference the files, AutomaticGainContro.h
 dbfsCalculator.h, AutomaticGainControl.cc, and dbFsCalculator.c
 
-4. Provide a *static* callback function that sets the gain, in decibels, of
+3. Provide a *static* callback function that sets the gain, in decibels, of
 whatever amplifier you going to control.  I recommend controlling the
 amplifier that drives the A/D converter in your receiver.  Additionally,
 save the amplifier gain in a variable: for example, call it gainValue.
 
-5. Provide a *static* callback function that returns the gain, in decibels,
+4. Provide a *static* callback function that returns the gain, in decibels,
 of the amplifier that is bbeing controlled.  Let it return the  example
 variable, gainValue, from the above example.
 
