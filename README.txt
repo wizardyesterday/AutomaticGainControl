@@ -14,13 +14,13 @@ directory.  For details on design and implementation, refer to that paper.
 1.0 System Requrements
 
 The AGC software has been successfully run on a 300MHz Pentium II computer,
-and on a BeagleBone Black with a 1GHg single-core ARM v7 processor.
+and on a BeagleBone Black with a 1GHz single-core ARM v7 processor.
 
 The toolchain used for the Pentium II computer is gcc version 3.3 with
 the associated linker.
 
 The software has been built and tested in a Linux environment, and I don't
-plan to support Microsoft Windows systems.  I welcome oers to add the
+plan to support Microsoft Windows systems.  I welcome users to add the
 appropriate macros to support Microsoft Windows.
 
 This software *should* be able to build and execute on 64-bit processer
