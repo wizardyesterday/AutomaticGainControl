@@ -274,7 +274,7 @@ of when the AGC should actually be operated at run time.
 6.0 Closing Remarks.
 
 This document has provided a description of an implementation of an AGG
-algorithm that was wrottem in the C programming language.  The advanage
+algorithm that was written in the C programming language.  The advanage
 to using C is that the algorithm can be used for both C programs as well
 as C++.
 
@@ -304,7 +304,7 @@ radios having an AGC.  You get lots of bang for the buck.
 It is my hope that some people, at the very least, look at my code.  They
 might actually find it to be useful.
 
-There are two points that I should mention.:
+There are two points that I should iention.:
 1. Do not enable the AGC until the receiver is started/enabled and the
 receiver has stabilized.
 2. The AGC can be disabled if it is desired to manually adjust the amplifier
