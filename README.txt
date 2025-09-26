@@ -203,7 +203,7 @@ configuration and state information.  The file, testAgc.cc shows you how
 to define your *static* callbacks which would normally reside in your
 application code.
 I used this program to unit-test the AGC code using a debugger.  You can add
-bells and whistles to the test program so that you cann get a feel of the
+bells and whistles to the test program so that you can get a feel of the
 AGC code.
 Test program output is illustrated below.
 
