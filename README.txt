@@ -304,7 +304,7 @@ radios having an AGC.  You get lots of bang for the buck.
 It is my hope that some people, at the very least, look at my code.  They
 might actually find it to be useful.
 
-There are two points that I should iention.:
+There are two points that I should iention:
 1. Do not enable the AGC until the receiver is started/enabled and the
 receiver has stabilized.
 2. The AGC can be disabled if it is desired to manually adjust the amplifier
