@@ -27,8 +27,6 @@ static struct privateData
   // This is used for dBFs computations.
   uint32_t fullScaleValueInDb;
 
-  uint8_t magnitudeBuffer[16384];
-
   // This table is used to compute decibels for values [0,255].
   int32_t dbTable[257];
 } me;
