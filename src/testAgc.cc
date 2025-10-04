@@ -104,11 +104,15 @@ int main(int argc,char **argv)
 {
   uint32_t i;
   uint32_t numberOfBits;
+  uint32_t maxAmplifierGainInDb;
   int32_t operatingPointInDbFs;
   char *displayBufferPtr;
 
   // Allocate memory.
   displayBufferPtr = new char[65536];
+
+  // The maaximum amplifier gain is 46 decibels.
+  maxAmplifierGainInDb = 46;
 
   // Some sane value for gain.
   operatingPointInDbFs = -12;
@@ -117,8 +121,12 @@ int main(int argc,char **argv)
   // case for an 8-bit 2's complement value.
   numberOfBits = 7;
 
-  // Initalize the AGC with an operating point of -8dBFs.
-  agc_init(-8,numberOfBits,setGainCallback,getGainCallback);
+  // Initalize the AGC..
+  agc_init(operatingPointInDbFs,
+           maxAmplifierGainInDb,
+           numberOfBits,
+           setGainCallback,
+           getGainCallback);
 
   // Set the convergence contstant.
   agc_setAgcFilterCoefficient(0.7);

@@ -14,6 +14,7 @@ extern "C" {
 #include <stdint.h>
 
 int agc_init(int32_t operatingPointInDbFs,
+    uint32_t maxAmplifierGainInDb,
     uint32_t signalMagnitudeBitCount,
     void (*setGainCallbackPtr)(uint32_t gainIndB),
     uint32_t (*getGainCallbackPtr)(void));

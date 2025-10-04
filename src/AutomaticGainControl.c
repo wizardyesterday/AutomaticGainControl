@@ -9,13 +9,6 @@
 #include "AutomaticGainControl.h"
 #include "dbfsCalculator.h"
 
-//_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
-// Hardware-dependent defines.
-//_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
-#define MAX_ADJUSTIBLE_GAIN (46)
-//_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
-
-
 // All private stuff is bundled in one structure.
 static struct privateData
 {
@@ -35,8 +28,11 @@ static struct privateData
 
   int32_t signalInDbFs;
 
-  // The goal.
+  // The setpoint.
   int32_t operatingPointInDbFs;
+
+  // The maximum amplifier gain in decibels
+  int32_t maxAmplifierGainInDb;
 
   // AGC lowpass filter coefficient for baseband gain filtering.
   float alpha;
@@ -111,6 +107,7 @@ void agc_acceptData(uint32_t signalMagnitude)
   subsystem.
 
   Calling Sequence: initialized = agc_init(operatingPointInDbFs,
+                                           maxAmplifierGainInDb,
                                            signalMagnitudeBitCount,
                                            signalMagnitudeBitCount,
                                            getGainCallbackPtr)
@@ -120,6 +117,10 @@ void agc_acceptData(uint32_t signalMagnitude)
     operatingPointInDbFs - The AGC operating point in decibels referenced
     to full scale.  Full scale represents 0dBFs, otherwise, all other
     values will be negative.
+
+    maxAmplifierGainInDb - The maximum gain of the amplifier in decibels.
+    It is the responsibility of the application to know the hardware
+    characteristics.
 
     signalMagnitudeBitCount - The number of magnitude bits in a signal.
     This is necssary to map a signal magnitude into the log domain so
@@ -150,6 +151,7 @@ void agc_acceptData(uint32_t signalMagnitude)
 
 **************************************************************************/
 int agc_init(int32_t operatingPointInDbFs,
+    uint32_t maxAmplifierGainInDb,
     uint32_t signalMagnitudeBitCount,
     void (*setGainCallbackPtr)(uint32_t gainIndB),
     uint32_t (*getGainCallbackPtr)(void))
@@ -158,8 +160,11 @@ int agc_init(int32_t operatingPointInDbFs,
   // Make sure this indicates we're not initialized.
   me.initialized = 0;
 
-  // Reference the set point to the antenna input.
+  // Save the set point to the antenna input.
   me.operatingPointInDbFs = operatingPointInDbFs;
+
+  // Save the maximum amplifier gain.
+  me.maxAmplifierGainInDb = maxAmplifierGainInDb;
 
   // Start with a reasonable deadband.
   me.deadbandInDb = 1;
@@ -571,6 +576,10 @@ void agc_displayInternalInformation(char **displayBufferPtrPtr)
           me.operatingPointInDbFs);
   p += n;
 
+  n = sprintf(p,"Maximum Amplifier Gain     : %u dB\n",
+          me.maxAmplifierGainInDb);
+  p += n;
+
   n = sprintf(p,"Gain                       : %u dB\n",
           me.gainInDb);
   p += n;
@@ -812,7 +821,7 @@ void runHarris(uint32_t signalMagnitude)
   // we don't want to make an adjustment.  This is
   // easily solved by setting the gain error to zero.
   //************************************************** 
-  if (me.gainInDb == MAX_ADJUSTIBLE_GAIN)
+  if (me.gainInDb == me.maxAmplifierGainInDb)
   {
     if (gainError > 0)
     {
@@ -846,9 +855,9 @@ void runHarris(uint32_t signalMagnitude)
   //+++++++++++++++++++++++++++++++++++++++++++
   // Limit the gain to valid values.
   //+++++++++++++++++++++++++++++++++++++++++++
-  if (me.filteredGainInDb > MAX_ADJUSTIBLE_GAIN)
+  if (me.filteredGainInDb > me.maxAmplifierGainInDb)
   {
-    me.filteredGainInDb = MAX_ADJUSTIBLE_GAIN;
+    me.filteredGainInDb = me.maxAmplifierGainInDb;
   } // if
   else
   {
@@ -908,7 +917,7 @@ void setHardwareGainInDb(uint32_t gainInDb)
   // The client callback will perform hardware-centric processing.
   if (me.setGainCallbackPtr != 0)
   {
-    if (gainInDb <= MAX_ADJUSTIBLE_GAIN)
+    if (gainInDb <= me.maxAmplifierGainInDb)
     {
       // The gain is in range.
     me.setGainCallbackPtr(gainInDb);
@@ -954,7 +963,7 @@ uint32_t getHardwareGainInDb(void)
   {
     gainInDb = me.getGainCallbackPtr();
 
-    if (gainInDb > MAX_ADJUSTIBLE_GAIN)
+    if (gainInDb > me.maxAmplifierGainInDb)
     {
       // The gain is out of range.
       gainInDb = me.gainInDb;

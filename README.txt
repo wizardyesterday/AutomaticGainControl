@@ -93,12 +93,15 @@ More detaileddescriptions are provided in the comment header blocks in the
 file, AutomaticGainControl.c.
 
 3.1 int agc_init(int32_t operatingPointInDbFs,
+    uint32_t maxAmplifierGainInDb,
     uint32_t signalMagnitudeBitCount,
     void (*setGainCallbackPtr)(uint32_t gainIndB),
     uint32_t (*getGainCallbackPtr)(void))
 
 This function initializes the AGC.
 The operatingPointIndBFs parameter sets the initial operating point of the AGC.
+The "maxAmplifierGainInDb" parameter indicates the maximum amplifier gain
+that is allowable for the AGC algorithm.
 
 The "signalMagnitudeBitCount" parameter dictates how many bits are required for
 the signal magnitude.  This parameter is required so that the AGC can convert
@@ -216,6 +219,7 @@ Blanking Limit             : 1 ticks
 Lowpass Filter Coefficient : 0.800
 Deadband                   : 1 dB
 Operating Point            : -12 dBFs
+Maximum Amplifier Gain     : 46 dB
 Gain                       : 24 dB
 /_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
 Signal Magnitude           : 0
