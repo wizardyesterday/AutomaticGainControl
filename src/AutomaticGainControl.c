@@ -160,6 +160,9 @@ int agc_init(int32_t operatingPointInDbFs,
   // Make sure this indicates we're not initialized.
   me.initialized = 0;
 
+  // Indicate no signal received.
+  me.signalMagnitude = 0;
+
   // Save the set point to the antenna input.
   me.operatingPointInDbFs = operatingPointInDbFs;
 
@@ -792,23 +795,6 @@ void runHarris(uint32_t signalMagnitude)
   // Update for display purposes.
   me.normalizedSignalLevelInDbFs = signalIndBFs - me.gainInDb;
 
-  //_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
-  // Compute the gain adjustment.
-  // Allocate gains appropriately.  Here is what we
-  // have to work with:
-  //
-  //   1. The IF amp provides gains from 0 to 46dB
-  //   in nonuniform steps.
-  //
-  // Let's try this first:
-  //
-  //   1. Adjust the gain as appropriate to achieve
-  //   the operating point referenced at the antenna input.
-  //
-  // This provides a dynamic range of 46dB (since the IF
-  // amplifier has an adjustable gain from 0 to 46dB), of the
-  // samples that drive the A/D convertor.
-  //_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
   // Compute the gain adjustment.
   gainError = me.operatingPointInDbFs - signalIndBFs;
 
