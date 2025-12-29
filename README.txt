@@ -69,7 +69,7 @@ This directory contains the header files listed below.
 This file is used internally by the AGC.
 
 2.3 src/
-This directory contains the header files listed below.
+This directory contains the source files listed below.
 
 2.3.1 AutomaticGainControl.c
 
